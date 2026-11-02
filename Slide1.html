@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noman Aqil Portfolio</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #050505;
+  color: #fff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ===== TOP NAV ===== */
+nav {
+  position: absolute;
+  top: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  z-index: 100;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #888;
+}
+nav span:hover { color: #fff; cursor: pointer; }
+
+/* ===== BACKGROUND TEXT ===== */
+.bg-text-container {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.25;
+  overflow: hidden;
+}
+
+.marquee {
+  position: absolute;
+  width: 200%;
+  display: flex;
+  white-space: nowrap;
+  font-size: clamp(8rem, 18vw, 18vw);
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.08em;
+  color: #ccc;
+}
+
+.marquee.top {
+  top: -8%;
+  transform: rotate(-3deg);
+  animation: marqueeLeft 45s linear infinite;
+}
+
+.marquee.bottom {
+  top: 60%;
+  transform: rotate(3deg);
+  animation: marqueeRight 45s linear infinite;
+}
+
+@keyframes marqueeLeft {
+  from { transform: rotate(-3deg) translateX(0); }
+  to   { transform: rotate(-2deg) translateX(-50%); }
+}
+@keyframes marqueeRight {
+  from { transform: rotate(3deg) translateX(-50%); }
+  to   { transform: rotate(2deg) translateX(0); }
+}
+
+/* ===== ABOUT ===== */
+.about-section {
+  position: absolute;
+  top: 20px;
+  bottom: 20px;
+  left: 10px;
+  width: clamp(260px, 28vw, 320px);
+  z-index: 50;
+}
+
+.glass-box {
+  height: 100%;
+  background: rgba(255,255,255,0.02);
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 24px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #ddd;
+}
+
+.about-title {
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+/* ===== THREE CANVAS ===== */
+#canvas-container {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ===== PROFILE FRAME ===== */
+.profile-container {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: clamp(200px, 28vw, 340px);
+  height: clamp(200px, 28vw, 340px);
+  border-radius: 50%;
+  background: #4a4a4a;   /* main frame */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+
+/* ===== INNER SMALLER CIRCLE ===== */
+.inner-circle {
+  width: 95%;     /* controls thickness of frame */
+  height: 95%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #111; /* optional subtle inner background */
+}
+
+/* IMAGE INSIDE SMALL CIRCLE */
+.inner-circle img {
+  width: 100%;
+  height: 150%;
+  object-fit: cover;
+}
+
+/* ===== FIXED PILL SIDE NAV ===== */
+.side-nav {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 25px;
+  height: 80px;
+  background: #7a7a7a;
+  border-radius: 999px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  z-index: 100;
+}
+
+.nav-dot {
+  width: 6px;
+  height: 6px;
+  background: #000;
+  border-radius: 50%;
+  opacity: 0.45;
+}
+
+.nav-dot.active {
+  opacity: 1;
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+  <span>HOME</span>
+  <span>WORKS</span>
+  <span>LINKEDIN</span>
+  <span>CONTACT</span>
+</nav>
+
+<div class="bg-text-container">
+  <div class="marquee top">
+    <span>WEB&nbsp;&nbsp;WEB&nbsp;&nbsp;WEB&nbsp;&nbsp;</span>
+    <span>WEB&nbsp;&nbsp;WEB&nbsp;&nbsp;WEB&nbsp;&nbsp;</span>
+  </div>
+  <div class="marquee bottom">
+    <span>DEV&nbsp;&nbsp;DEV&nbsp;&nbsp;DEV&nbsp;&nbsp;</span>
+    <span>DEV&nbsp;&nbsp;DEV&nbsp;&nbsp;DEV&nbsp;&nbsp;</span>
+  </div>
+</div>
+
+<div class="about-section">
+  <div class="glass-box">
+    <div class="about-title">ABOUT</div>
+    <div>
+      I am a first-year B.Tech student in Artificial Intelligence & Data Science with a passion for immersive web experiences.
+      <br><br>
+      I enjoy bridging creative design with technical implementation, building clean interfaces, and experimenting with 3D graphics using modern web technologies.
+    </div>
+  </div>
+</div>
+
+<div id="canvas-container"></div>
+
+<!-- UPDATED PROFILE STRUCTURE -->
+<div class="profile-container">
+  <div class="inner-circle">
+    <img src="profile.jpeg" onerror="this.src='https://via.placeholder.com/600'">
+  </div>
+</div>
+
+<!-- SIDE NAV -->
+<div class="side-nav">
+  <div class="nav-dot active"></div>
+  <div class="nav-dot"></div>
+  <div class="nav-dot"></div>
+  <div class="nav-dot"></div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+const container = document.getElementById('canvas-container');
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
+camera.position.set(3.5, 1.5, 0);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(devicePixelRatio);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+container.appendChild(renderer.domElement);
+
+const geometry = new RoundedBoxGeometry(1.3, 1.3, 1.3, 4, 0.015);
+const material = new THREE.MeshStandardMaterial({
+  color: 0xd3d3d3,
+  roughness: 0.5,
+  metalness: 0.1,
+});
+
+const cube = new THREE.Mesh(geometry, material);
+cube.rotation.y = -Math.PI / 4;
+scene.add(cube);
+
+scene.add(new THREE.AmbientLight(0xd3d3d3, 0.3));
+
+const mainLight = new THREE.DirectionalLight(0xd3d3d3, 4);
+mainLight.position.set(5, 10, 5);
+scene.add(mainLight);
+
+function animate() {
+  requestAnimationFrame(animate);
+  cube.rotation.y += 0.003;
+  renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+
+</body>
+</html>
