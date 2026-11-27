@@ -1,7 +1,8 @@
-import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import type { MutableRefObject } from 'react';
 import * as THREE from 'three';
+import { AtmosphereShader } from '@/components/three/AtmosphereShader';
 import { FallbackSculpture } from '@/components/three/FallbackSculpture';
 import { OrbitalParticles } from '@/components/three/OrbitalParticles';
 import { SceneRig } from '@/components/three/SceneRig';
@@ -11,6 +12,7 @@ import type { MonolithFinish, QualityTier, ViewportProfile } from '@/types/portf
 
 interface PortfolioCanvasProps {
   scrollProgressRef: MutableRefObject<number>;
+  scrollVelocityRef: MutableRefObject<number>;
   finish: MonolithFinish;
   dpr: [number, number];
   qualityTier: QualityTier;
@@ -22,6 +24,7 @@ interface PortfolioCanvasProps {
 
 export default function PortfolioCanvas({
   scrollProgressRef,
+  scrollVelocityRef,
   finish,
   dpr,
   qualityTier,
@@ -32,6 +35,23 @@ export default function PortfolioCanvas({
 }: PortfolioCanvasProps) {
   const [contextLost, setContextLost] = useState(false);
   const [canvasElement, setCanvasElement] = useState<HTMLCanvasElement | null>(null);
+  const pointerRef = useRef({ x: 0, y: 0 });
+  const accentColorRef = useRef(new THREE.Color('#d6b384'));
+
+  useEffect(() => {
+    if (reducedMotion || isTouchPrimary) {
+      pointerRef.current = { x: 0, y: 0 };
+      return;
+    }
+
+    const handlePointerMove = (event: PointerEvent) => {
+      pointerRef.current.x = THREE.MathUtils.clamp((event.clientX / window.innerWidth) * 2 - 1, -1, 1);
+      pointerRef.current.y = THREE.MathUtils.clamp((event.clientY / window.innerHeight) * 2 - 1, -1, 1);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    return () => window.removeEventListener('pointermove', handlePointerMove);
+  }, [reducedMotion, isTouchPrimary]);
 
   const handleCreated = useCallback(({ gl }: { gl: THREE.WebGLRenderer }) => {
     setCanvasElement(gl.domElement);
@@ -44,13 +64,10 @@ export default function PortfolioCanvas({
       event.preventDefault();
       setContextLost(true);
     };
-    const onContextRestored = () => {
-      setContextLost(false);
-    };
+    const onContextRestored = () => setContextLost(false);
 
     canvasElement.addEventListener('webglcontextlost', onContextLost);
     canvasElement.addEventListener('webglcontextrestored', onContextRestored);
-
     return () => {
       canvasElement.removeEventListener('webglcontextlost', onContextLost);
       canvasElement.removeEventListener('webglcontextrestored', onContextRestored);
@@ -81,9 +98,19 @@ export default function PortfolioCanvas({
           onCreated={handleCreated}
         >
           <Suspense fallback={null}>
-            <StudioEnvironment quality={qualityTier} />
+            <AtmosphereShader
+              quality={qualityTier}
+              reducedMotion={reducedMotion}
+              pointerRef={pointerRef}
+              scrollProgressRef={scrollProgressRef}
+              accentColorRef={accentColorRef}
+            />
+            <StudioEnvironment quality={qualityTier} accentColorRef={accentColorRef} />
             <SceneRig
               scrollProgressRef={scrollProgressRef}
+              scrollVelocityRef={scrollVelocityRef}
+              pointerRef={pointerRef}
+              accentColorRef={accentColorRef}
               finish={finish}
               viewportProfile={viewportProfile}
               qualityTier={qualityTier}

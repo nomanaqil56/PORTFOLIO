@@ -8,6 +8,9 @@ import type { MonolithFinish, QualityTier, ViewportProfile } from '@/types/portf
 
 interface SceneRigProps {
   scrollProgressRef: MutableRefObject<number>;
+  scrollVelocityRef: MutableRefObject<number>;
+  pointerRef: MutableRefObject<{ x: number; y: number }>;
+  accentColorRef: MutableRefObject<THREE.Color>;
   finish: MonolithFinish;
   viewportProfile: ViewportProfile;
   qualityTier: QualityTier;
@@ -17,6 +20,9 @@ interface SceneRigProps {
 
 export function SceneRig({
   scrollProgressRef,
+  scrollVelocityRef,
+  pointerRef,
+  accentColorRef,
   finish,
   viewportProfile,
   qualityTier,
@@ -24,50 +30,33 @@ export function SceneRig({
   isTouchPrimary,
 }: SceneRigProps) {
   const monolithRef = useRef<THREE.Group>(null);
-  const pointerRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const lookAtTargetRef = useRef(new THREE.Vector3(0, 0, 0));
   const sampledTargets = useMemo(() => createSampledStageTargets(), []);
   const { camera } = useThree();
 
-  // Initialize camera cleanly on first mount to match Slide 1 immediately
   useEffect(() => {
     sampleStagePose(scrollProgressRef.current, viewportProfile, sampledTargets);
     camera.position.copy(sampledTargets.cameraPosition);
     lookAtTargetRef.current.copy(sampledTargets.cameraTarget);
     camera.lookAt(lookAtTargetRef.current);
+    accentColorRef.current.copy(sampledTargets.accentColor);
 
     if (monolithRef.current) {
       monolithRef.current.position.copy(sampledTargets.monolithPosition);
       monolithRef.current.rotation.copy(sampledTargets.monolithRotation);
       monolithRef.current.scale.setScalar(sampledTargets.monolithScale);
     }
-  }, [camera, sampledTargets, scrollProgressRef, viewportProfile]);
-
-  useEffect(() => {
-    if (reducedMotion || isTouchPrimary) {
-      pointerRef.current = { x: 0, y: 0 };
-      return;
-    }
-
-    const handlePointerMove = (event: PointerEvent) => {
-      const nx = (event.clientX / window.innerWidth) * 2 - 1;
-      const ny = (event.clientY / window.innerHeight) * 2 - 1;
-      pointerRef.current.x = THREE.MathUtils.clamp(nx, -1, 1);
-      pointerRef.current.y = THREE.MathUtils.clamp(ny, -1, 1);
-    };
-
-    window.addEventListener('pointermove', handlePointerMove, { passive: true });
-    return () => window.removeEventListener('pointermove', handlePointerMove);
-  }, [reducedMotion, isTouchPrimary]);
+  }, [accentColorRef, camera, sampledTargets, scrollProgressRef, viewportProfile]);
 
   useFrame((state, rawDelta) => {
     const delta = Math.min(rawDelta, 0.05);
-    const damping = reducedMotion ? 18 : 6.5;
+    const damping = reducedMotion ? 18 : 6.2;
 
     sampleStagePose(scrollProgressRef.current, viewportProfile, sampledTargets);
+    accentColorRef.current.lerp(sampledTargets.accentColor, Math.min(1, delta * 5));
 
-    const pointerOffsetX = reducedMotion || isTouchPrimary ? 0 : pointerRef.current.x * 0.22;
-    const pointerOffsetY = reducedMotion || isTouchPrimary ? 0 : -pointerRef.current.y * 0.14;
+    const pointerOffsetX = reducedMotion || isTouchPrimary ? 0 : pointerRef.current.x * 0.24;
+    const pointerOffsetY = reducedMotion || isTouchPrimary ? 0 : -pointerRef.current.y * 0.16;
 
     camera.position.x = THREE.MathUtils.damp(
       camera.position.x,
@@ -110,8 +99,8 @@ export function SceneRig({
 
     if (monolithRef.current) {
       const floatBob = reducedMotion ? 0 : Math.sin(state.clock.elapsedTime * 1.15) * 0.045;
-      const tiltX = reducedMotion || isTouchPrimary ? 0 : pointerRef.current.y * 0.14;
-      const tiltZ = reducedMotion || isTouchPrimary ? 0 : -pointerRef.current.x * 0.12;
+      const tiltX = reducedMotion || isTouchPrimary ? 0 : pointerRef.current.y * 0.15;
+      const tiltZ = reducedMotion || isTouchPrimary ? 0 : -pointerRef.current.x * 0.13;
 
       monolithRef.current.position.x = THREE.MathUtils.damp(
         monolithRef.current.position.x,
@@ -167,6 +156,8 @@ export function SceneRig({
       finish={finish}
       quality={qualityTier}
       reducedMotion={reducedMotion}
+      accentColorRef={accentColorRef}
+      scrollVelocityRef={scrollVelocityRef}
     />
   );
 }

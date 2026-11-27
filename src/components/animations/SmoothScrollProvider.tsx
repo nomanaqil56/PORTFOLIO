@@ -16,7 +16,7 @@ export function SmoothScrollProvider({
   reducedMotion,
   children,
 }: SmoothScrollProviderProps) {
-  const [activeSection, setActiveSection] = useState<SectionId>('home');
+  const [activeSection, setActiveSection] = useState<SectionId>(SECTION_ORDER[0]);
   const scrollProgressRef = useRef(0);
   const scrollVelocityRef = useRef(0);
   const lenisRef = useRef<Lenis | null>(null);

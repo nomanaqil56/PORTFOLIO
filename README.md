@@ -1,23 +1,37 @@
-# Noman Aqil — Interactive 3D Portfolio
+# Noman Aqil — Interactive 3D Digital Portfolio
 
-An interactive dark-minimalist portfolio rebuilt with **React**, **TypeScript**, **Vite**, **Three.js**, **React Three Fiber**, **Drei**, **GSAP**, **Framer Motion**, **Lenis**, and **Tailwind CSS**, evolving the original HTML/Three.js prototypes (`Slide1.html` & `Slide2.html`, preserved in Git commit `57a54c6` on `main`).
+An experimental dark-minimalist portfolio rebuilt with **React 19**, **TypeScript**, **Vite 8**, **Three.js**, **React Three Fiber**, **Drei**, **GSAP**, **Framer Motion**, **Lenis**, and **Tailwind CSS v4**, evolving the original HTML/Three.js slides (`Slide1.html` & `Slide2.html`, preserved at commit `57a54c6` on `main`).
+
+## Key Capabilities & Experience
+
+- **7-Stage Continuous Experience**: `Intro`, `About & Philosophy`, `Capabilities`, `Selected Projects`, `Experiments`, `Journey`, and `Contact` coordinated with Lenis smooth inertia and GSAP `ScrollTrigger`.
+- **Interactive WebGL Stage**: Lazy-loaded React Three Fiber `<Canvas>` with a beveled kinetic monolith (`Monolith`, `Topology`, `Optics`), local procedural `<Lightformer>` studio reflections, far-plane GLSL atmospheric fog shader, orbital particles, adaptive DPR/quality tiers, and a graceful SVG fallback.
+- **Dedicated Interaction System**: RAF-driven context-aware custom cursor (`VIEW`, `EXPLORE`, `OPEN`, `COPY`) for fine pointers, magnetic buttons, `Ctrl+K` / `⌘K` command navigation, masked typography reveals, and optional Web Audio feedback.
+- **Authentic Case Studies & Previews**:
+  - **NOVA-UI** (with interactive spatial HUD & telemetry mode preview)
+  - **MineHost** (with physical ARM64 Android device evidence captures)
+  - **Blender AI Studio** (with live Blender 5.3 viewport & Cycles PBR renders)
+  - **Assistant X** (with interactive `AssistantState` particle orb pipeline)
+  - **CueDrop** (interactive Android widget concept study)
+  - **Duaen Foundation Website** (accessible NGO frontend highlights)
 
 ## Architecture
 
 ```text
 src/
-  assets/          # Authentic portrait media
+  assets/               # Portrait and verified project evidence media
   components/
-    animations/    # Lenis smooth scroll + GSAP ScrollTrigger marquee ribbons
-    navigation/    # Top navigation bar + slim frosted vertical progress dots
-    sections/      # Home, Digital Systems, Disciplines & Works, Contact
-    three/         # KineticMonolith, StudioEnvironment, OrbitalParticles, SceneRig, Fallbacks
-    ui/            # GlassPanel, ProfilePortrait, SectionEyebrow
-  data/            # Authentic profile data, navigation config, future-ready project schema
-  hooks/           # Device capabilities, reduced motion, scroll controller
-  scenes/          # Lazy-loaded React Three Fiber Canvas
-  styles/          # Tailwind CSS v4 theme tokens & motion safeguards
-  types/           # Strict TypeScript portfolio models
+    animations/         # IntroCurtain, KineticText, MarqueeBackdrop, SmoothScrollProvider
+    interactions/       # CustomCursor, MagneticButton
+    navigation/         # TopNav, SideNavDots, CommandPalette, ScrollProgressBar
+    sections/           # Intro, About, Capabilities, Projects + Interactive Previews, Experiments, Journey, Contact
+    three/              # KineticMonolith, AtmosphereShader, StudioEnvironment, OrbitalParticles, SceneRig, Fallbacks
+    ui/                 # GlassPanel, ProfilePortrait, SectionEyebrow
+  data/                 # Authentic bio, capabilities, case studies, experiments, and journey milestones
+  hooks/                # Audio feedback, device capabilities, reduced motion, scroll controller
+  scenes/               # Lazy-loaded React Three Fiber Canvas
+  styles/               # Tailwind CSS v4 tokens, surfaces, and reduced-motion rules
+  types/                # Strict TypeScript portfolio models
 ```
 
 ## Scripts

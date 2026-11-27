@@ -1,33 +1,54 @@
-import type { SectionMeta, SectionId } from '@/types/portfolio';
+import type { SectionId, SectionMeta } from '@/types/portfolio';
 
 export const SECTIONS: SectionMeta[] = [
   {
-    id: 'home',
+    id: 'intro',
     index: '01',
-    label: 'Home',
-    navLabel: 'HOME',
-    eyebrow: '01 / IDENTITY',
+    label: 'Introduction',
+    navLabel: 'INTRO',
+    inTopNav: true,
   },
   {
-    id: 'systems',
+    id: 'about',
     index: '02',
-    label: 'Digital Systems',
-    navLabel: 'SYSTEMS',
-    eyebrow: '02 / SYSTEMS',
+    label: 'About & Philosophy',
+    navLabel: 'ABOUT',
+    inTopNav: true,
   },
   {
-    id: 'disciplines',
+    id: 'capabilities',
     index: '03',
-    label: 'Craft & Works',
-    navLabel: 'WORKS',
-    eyebrow: '03 / DISCIPLINES & ARCHIVE',
+    label: 'Capabilities',
+    navLabel: 'CAPABILITIES',
+    inTopNav: false,
+  },
+  {
+    id: 'projects',
+    index: '04',
+    label: 'Selected Projects',
+    navLabel: 'PROJECTS',
+    inTopNav: true,
+  },
+  {
+    id: 'experiments',
+    index: '05',
+    label: 'Experiments',
+    navLabel: 'EXPERIMENTS',
+    inTopNav: true,
+  },
+  {
+    id: 'journey',
+    index: '06',
+    label: 'Journey',
+    navLabel: 'JOURNEY',
+    inTopNav: false,
   },
   {
     id: 'contact',
-    index: '04',
+    index: '07',
     label: 'Contact',
     navLabel: 'CONTACT',
-    eyebrow: '04 / CONNECT',
+    inTopNav: true,
   },
 ];
 

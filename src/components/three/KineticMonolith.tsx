@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
+import type { MutableRefObject } from 'react';
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import type { MonolithFinish, QualityTier } from '@/types/portfolio';
@@ -8,12 +9,19 @@ interface KineticMonolithProps {
   finish: MonolithFinish;
   quality: QualityTier;
   reducedMotion: boolean;
+  accentColorRef: MutableRefObject<THREE.Color>;
+  scrollVelocityRef: MutableRefObject<number>;
 }
 
 export const KineticMonolith = forwardRef<THREE.Group, KineticMonolithProps>(
-  function KineticMonolith({ finish, quality, reducedMotion }, ref) {
+  function KineticMonolith(
+    { finish, quality, reducedMotion, accentColorRef, scrollVelocityRef },
+    ref,
+  ) {
     const spinGroupRef = useRef<THREE.Group>(null);
     const innerCoreRef = useRef<THREE.Mesh>(null);
+    const innerCoreMatRef = useRef<THREE.MeshStandardMaterial>(null);
+    const edgeMatRef = useRef<THREE.LineBasicMaterial>(null);
     const ringRef = useRef<THREE.Mesh>(null);
 
     const segments = quality === 'low' ? 3 : 5;
@@ -41,33 +49,42 @@ export const KineticMonolith = forwardRef<THREE.Group, KineticMonolithProps>(
       };
     }, [outerGeometry, edgeGeometry, coreGeometry, ringGeometry]);
 
+    const isWireframe = finish === 'wireframe';
+    const isOptics = finish === 'optics';
+
     useFrame((state, rawDelta) => {
       if (reducedMotion) return;
       const delta = Math.min(rawDelta, 0.05);
+      const velocityBoost = Math.min(Math.abs(scrollVelocityRef.current) * 0.015, 0.75);
 
       if (spinGroupRef.current) {
-        spinGroupRef.current.rotation.y += delta * 0.22;
+        spinGroupRef.current.rotation.y += delta * (0.22 + velocityBoost);
       }
 
       if (innerCoreRef.current) {
         innerCoreRef.current.rotation.x += delta * 0.34;
         innerCoreRef.current.rotation.y -= delta * 0.28;
-        const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.4) * 0.025;
+        const pulse = 1 + Math.sin(state.clock.elapsedTime * 1.45) * 0.025;
         innerCoreRef.current.scale.setScalar(pulse);
       }
 
       if (ringRef.current) {
-        ringRef.current.rotation.z += delta * 0.14;
+        ringRef.current.rotation.z += delta * (0.14 + velocityBoost * 1.4);
+      }
+
+      if (innerCoreMatRef.current && (isOptics || isWireframe)) {
+        innerCoreMatRef.current.color.copy(accentColorRef.current);
+        innerCoreMatRef.current.emissive.copy(accentColorRef.current);
+      }
+
+      if (edgeMatRef.current && isOptics) {
+        edgeMatRef.current.color.copy(accentColorRef.current);
       }
     });
-
-    const isWireframe = finish === 'wireframe';
-    const isOptics = finish === 'optics';
 
     return (
       <group ref={ref}>
         <group ref={spinGroupRef} rotation={[0, -Math.PI / 4, 0]}>
-          {/* Outer chamfered architectural cube */}
           {isWireframe ? (
             <mesh geometry={outerGeometry}>
               <meshStandardMaterial
@@ -108,10 +125,10 @@ export const KineticMonolith = forwardRef<THREE.Group, KineticMonolithProps>(
             </mesh>
           )}
 
-          {/* Crisp bevel edge accent */}
           {!isWireframe && (
             <lineSegments geometry={edgeGeometry}>
               <lineBasicMaterial
+                ref={edgeMatRef}
                 color={isOptics ? '#e2be8f' : '#ffffff'}
                 transparent
                 opacity={isOptics ? 0.36 : 0.14}
@@ -119,19 +136,18 @@ export const KineticMonolith = forwardRef<THREE.Group, KineticMonolithProps>(
             </lineSegments>
           )}
 
-          {/* Articulated inner core revealed during Wireframe / Optics modes */}
           <mesh ref={innerCoreRef} geometry={coreGeometry} rotation={[Math.PI / 4, Math.PI / 4, 0]}>
             <meshStandardMaterial
+              ref={innerCoreMatRef}
               color={isOptics || isWireframe ? '#d6b384' : '#24252a'}
-              emissive={isOptics ? '#b6894e' : isWireframe ? '#8d6d42' : '#000000'}
-              emissiveIntensity={isOptics ? 0.95 : isWireframe ? 0.45 : 0}
+              emissive={isOptics || isWireframe ? '#b6894e' : '#000000'}
+              emissiveIntensity={isOptics ? 0.82 : isWireframe ? 0.42 : 0}
               metalness={0.88}
               roughness={0.2}
             />
           </mesh>
         </group>
 
-        {/* Minimal orbital meridian ring */}
         <mesh ref={ringRef} geometry={ringGeometry} rotation={[Math.PI / 2.6, 0.35, 0]}>
           <meshStandardMaterial
             color="#a9acb4"

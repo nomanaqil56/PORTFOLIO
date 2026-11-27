@@ -5,8 +5,10 @@
   --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   --color-obsidian: #050505;
+  --color-charcoal: #0b0b0e;
   --color-titanium: #d3d3d3;
   --color-amber-rim: #d6b384;
+  --color-telemetry: #79c8e8;
 }
 
 @layer base {
@@ -28,39 +30,65 @@
   }
 
   :focus-visible {
-    outline: 1.5px solid rgba(255, 255, 255, 0.78);
+    outline: 1.5px solid rgba(255, 255, 255, 0.85);
     outline-offset: 3px;
   }
 }
 
-/* ===== AMBIENT TEXTURE & ATMOSPHERE ===== */
+/* Custom cursor class applied only on non-touch desktop when enabled */
+@media (hover: hover) and (pointer: fine) {
+  body.has-custom-cursor,
+  body.has-custom-cursor a,
+  body.has-custom-cursor button,
+  body.has-custom-cursor [role="button"],
+  body.has-custom-cursor [role="radio"] {
+    cursor: none !important;
+  }
+}
+
+/* ===== ATMOSPHERE & ARCHITECTURAL SURFACES ===== */
 .studio-vignette {
   background:
-    radial-gradient(circle at 52% 46%, rgba(255, 255, 255, 0.045) 0%, rgba(16, 16, 20, 0.02) 38%, rgba(5, 5, 5, 0) 70%),
-    radial-gradient(circle at 82% 78%, rgba(214, 179, 132, 0.04) 0%, rgba(5, 5, 5, 0) 42%);
+    radial-gradient(circle at 52% 44%, rgba(255, 255, 255, 0.04) 0%, rgba(16, 16, 20, 0.015) 38%, rgba(5, 5, 5, 0) 70%),
+    radial-gradient(circle at 82% 78%, rgba(214, 179, 132, 0.045) 0%, rgba(5, 5, 5, 0) 44%);
+}
+
+.architectural-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.024) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.024) 1px, transparent 1px);
+  background-size: 96px 96px;
 }
 
 .glass-surface {
   background: linear-gradient(
     145deg,
     rgba(255, 255, 255, 0.042) 0%,
-    rgba(255, 255, 255, 0.015) 60%,
-    rgba(255, 255, 255, 0.025) 100%
+    rgba(255, 255, 255, 0.014) 60%,
+    rgba(255, 255, 255, 0.024) 100%
   );
-  backdrop-filter: blur(12px) saturate(110%);
-  -webkit-backdrop-filter: blur(12px) saturate(110%);
+  backdrop-filter: blur(14px) saturate(110%);
+  -webkit-backdrop-filter: blur(14px) saturate(110%);
   border: 1px solid rgba(255, 255, 255, 0.085);
   box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.55),
+    0 24px 64px rgba(0, 0, 0, 0.58),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .side-pill-surface {
-  background: rgba(255, 255, 255, 0.045);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(12, 12, 16, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.6);
+}
+
+/* Subtle typography interaction */
+.kinetic-headline {
+  transition: letter-spacing 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.kinetic-headline:hover {
+  letter-spacing: 0.015em;
 }
 
 /* ===== SEAMLESS INFINITE MARQUEE ===== */
@@ -115,5 +143,8 @@
   .marquee-track-left,
   .marquee-track-right {
     animation: none !important;
+  }
+  .kinetic-headline {
+    transition: none !important;
   }
 }

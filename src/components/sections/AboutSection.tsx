@@ -2,23 +2,26 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { KineticText } from '@/components/animations/KineticText';
 import { SectionEyebrow } from '@/components/ui/SectionEyebrow';
 import { MONOLITH_FINISHES, OWNER_PROFILE } from '@/data/portfolio';
 import type { MonolithFinish } from '@/types/portfolio';
 
-interface SystemsSectionProps {
+interface AboutSectionProps {
   finish: MonolithFinish;
   onFinishChange: (finish: MonolithFinish) => void;
   reducedMotion: boolean;
   isTouchPrimary: boolean;
+  onAudioCue: (pitch?: number) => void;
 }
 
-export function SystemsSection({
+export function AboutSection({
   finish,
   onFinishChange,
   reducedMotion,
   isTouchPrimary,
-}: SystemsSectionProps) {
+  onAudioCue,
+}: AboutSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -28,16 +31,16 @@ export function SystemsSection({
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
-      const children = contentRef.current?.querySelectorAll('[data-reveal]');
-      if (!children?.length) return;
+      const blocks = contentRef.current?.querySelectorAll('[data-about-reveal]');
+      if (!blocks?.length) return;
 
       gsap.fromTo(
-        children,
-        { opacity: 0, y: 28 },
+        blocks,
+        { opacity: 0, y: 26 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.75,
+          duration: 0.78,
           stagger: 0.1,
           ease: 'power3.out',
           scrollTrigger: {
@@ -58,45 +61,61 @@ export function SystemsSection({
   return (
     <section
       ref={sectionRef}
-      id="systems"
-      data-section-id="systems"
-      aria-label="Digital Systems"
-      className="relative z-20 flex min-h-[100svh] items-start px-4 pb-16 pt-20 sm:px-8 md:items-center md:px-12 md:py-24 lg:px-16"
+      id="about"
+      data-section-id="about"
+      aria-label="About and Philosophy"
+      className="relative z-20 flex min-h-[100svh] items-start px-4 pb-14 pt-20 sm:px-8 md:items-center md:px-12 md:py-16 lg:px-16"
     >
       <div className="mx-auto w-full max-w-6xl">
-        <div ref={contentRef} className="w-full max-w-xl md:w-[46%]">
-          <div data-reveal>
-            <SectionEyebrow text="02 / Digital Systems" />
+        <div ref={contentRef} className="w-full max-w-xl space-y-4 sm:space-y-5 md:w-[50%]">
+          <div data-about-reveal>
+            <SectionEyebrow text="02 / About & Philosophy" />
           </div>
 
+          {/* Expressive oversized philosophy quote */}
           <h2
-            data-reveal
-            className="mt-4 font-display text-[clamp(2.75rem,6.5vw,5.25rem)] font-bold uppercase leading-[0.94] tracking-[-0.02em] text-white sm:mt-5"
+            data-about-reveal
+            className="kinetic-headline font-display text-[clamp(2rem,4.1vw,3.35rem)] font-bold uppercase leading-[0.98] tracking-[-0.015em] text-white"
           >
-            {OWNER_PROFILE.systemsHeadline[0]}
+            <KineticText
+              text="DON'T JUST USE TECHNOLOGY."
+              mode="words"
+              reducedMotion={reducedMotion}
+            />
             <br />
-            <span className="text-neutral-300">{OWNER_PROFILE.systemsHeadline[1]}</span>
+            <span className="text-[#d6b384]">
+              <KineticText
+                text="EXPLORE IT, UNDERSTAND IT, AND BUILD SOMETHING WITH IT."
+                mode="words"
+                reducedMotion={reducedMotion}
+                delay={0.14}
+              />
+            </span>
           </h2>
 
-          <p
-            data-reveal
-            className="mt-4 max-w-md text-[14.5px] leading-[1.6] text-neutral-300 sm:mt-5 sm:text-base sm:leading-[1.65]"
-          >
-            {OWNER_PROFILE.systemsSubtitle}
-          </p>
+          <div data-about-reveal className="space-y-2.5 border-l border-white/15 pl-4 sm:pl-5">
+            {OWNER_PROFILE.aboutParagraphs.map((paragraph, index) => (
+              <p
+                key={index}
+                className="text-[13px] leading-[1.62] text-neutral-300 sm:text-[13.5px]"
+              >
+                {paragraph}
+              </p>
+            ))}
+          </div>
 
-          {/* Interactive 3D material finish selector */}
+          {/* Interactive 3D Material Study preserved from Digital Systems */}
           <div
-            data-reveal
-            className="mt-6 rounded-2xl border border-white/[0.08] bg-[#0a0a0d]/80 p-4 backdrop-blur-md sm:mt-8"
+            data-about-reveal
+            className="rounded-2xl border border-white/[0.08] bg-[#0a0a0d]/85 p-4 backdrop-blur-md"
           >
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-neutral-400">
-                3D Material Study
+                Interactive 3D Stage Finish
               </span>
               {!isTouchPrimary && (
-                <span className="font-mono text-[10.5px] text-[#d6b384]">
-                  Move pointer to tilt
+                <span className="font-mono text-[10px] text-[#d6b384]">
+                  Move pointer to tilt stage
                 </span>
               )}
             </div>
@@ -104,7 +123,7 @@ export function SystemsSection({
             <div
               role="radiogroup"
               aria-label="3D monolith material finish"
-              className="mt-3 grid grid-cols-3 gap-1.5 rounded-xl bg-black/50 p-1"
+              className="mt-3 grid grid-cols-3 gap-1.5 rounded-xl bg-black/55 p-1"
             >
               {MONOLITH_FINISHES.map((option) => {
                 const selected = finish === option.id;
@@ -114,14 +133,18 @@ export function SystemsSection({
                     type="button"
                     role="radio"
                     aria-checked={selected}
-                    onClick={() => onFinishChange(option.id)}
+                    data-cursor="magnet"
+                    onClick={() => {
+                      onAudioCue(720);
+                      onFinishChange(option.id);
+                    }}
                     className={`relative cursor-pointer rounded-lg px-2.5 py-2 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors ${
                       selected ? 'text-white' : 'text-neutral-400 hover:text-neutral-200'
                     }`}
                   >
                     {selected && (
                       <motion.span
-                        layoutId={reducedMotion ? undefined : 'finish-pill'}
+                        layoutId={reducedMotion ? undefined : 'about-finish-pill'}
                         transition={{ type: 'spring', stiffness: 380, damping: 32 }}
                         className="absolute inset-0 rounded-lg border border-white/15 bg-white/10"
                       />
@@ -132,13 +155,12 @@ export function SystemsSection({
               })}
             </div>
 
-            <p className="mt-3 text-xs leading-relaxed text-neutral-400">
+            <p className="mt-2.5 text-xs leading-relaxed text-neutral-400">
               {activeFinishMeta.caption}
             </p>
           </div>
         </div>
 
-        {/* Dedicated mobile viewport window below controls so 3D centerpiece sits cleanly */}
         <div className="h-56 sm:h-64 md:hidden" aria-hidden="true" />
       </div>
     </section>
