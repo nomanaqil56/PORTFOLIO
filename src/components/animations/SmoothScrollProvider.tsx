@@ -12,61 +12,114 @@ interface SmoothScrollProviderProps {
   children: ReactNode;
 }
 
+/**
+ * Authoritative layout-measured scroll & section-stage synchronization engine.
+ * Computes exact section top offsets via ResizeObserver so 3D choreography arrives
+ * at each section pose in lockstep with the DOM regardless of varying section heights.
+ */
 export function SmoothScrollProvider({
   reducedMotion,
   children,
 }: SmoothScrollProviderProps) {
   const [activeSection, setActiveSection] = useState<SectionId>(SECTION_ORDER[0]);
   const scrollProgressRef = useRef(0);
+  const stageProgressRef = useRef(0);
   const scrollVelocityRef = useRef(0);
   const lenisRef = useRef<Lenis | null>(null);
+  const sectionTopsRef = useRef<number[]>(SECTION_ORDER.map((_, i) => i * 900));
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+    const stageEase = gsap.parseEase('power2.inOut');
 
-    const updateProgressAndSection = () => {
+    const measureSections = () => {
+      sectionTopsRef.current = SECTION_ORDER.map((id, idx) => {
+        const el = document.getElementById(id);
+        return el ? el.offsetTop : idx * window.innerHeight;
+      });
+    };
+
+    const syncProgressAndSection = () => {
+      const tops = sectionTopsRef.current;
+      const y = window.scrollY;
       const maxScroll = Math.max(
         1,
         document.documentElement.scrollHeight - window.innerHeight,
       );
-      const y = window.scrollY;
+
       scrollProgressRef.current = Math.min(1, Math.max(0, y / maxScroll));
 
-      const viewportMid = y + window.innerHeight * 0.45;
-      let nextActive: SectionId = SECTION_ORDER[0];
+      // Compute exact piecewise section-anchored stage float [0 .. lastIndex + exit]
+      const lastIdx = tops.length - 1;
+      let stageFloat = 0;
 
-      for (const id of SECTION_ORDER) {
-        const el = document.getElementById(id);
-        if (!el) continue;
-        const top = el.offsetTop;
-        const bottom = top + el.offsetHeight;
-        if (viewportMid >= top && viewportMid < bottom) {
-          nextActive = id;
-          break;
+      if (y <= tops[0]) {
+        stageFloat = 0;
+      } else if (y >= tops[lastIdx]) {
+        const tailSpan = Math.max(1, maxScroll - tops[lastIdx]);
+        const exitT = Math.min(1, (y - tops[lastIdx]) / tailSpan);
+        stageFloat = lastIdx + stageEase(exitT) * 0.22;
+      } else {
+        for (let i = 0; i < lastIdx; i++) {
+          const start = tops[i];
+          const end = tops[i + 1];
+          if (y >= start && y < end) {
+            const span = Math.max(1, end - start);
+            const rawT = (y - start) / span;
+            stageFloat = i + stageEase(rawT);
+            break;
+          }
         }
       }
 
-      // Guard bottom-of-page edge case
+      stageProgressRef.current = stageFloat;
+
+      // Determine active section cleanly
+      const probeY = y + window.innerHeight * 0.42;
+      let nextActive: SectionId = SECTION_ORDER[0];
+      for (let i = 0; i < SECTION_ORDER.length; i++) {
+        const start = tops[i];
+        const nextStart = i < lastIdx ? tops[i + 1] : Infinity;
+        if (probeY >= start && probeY < nextStart) {
+          nextActive = SECTION_ORDER[i];
+          break;
+        }
+      }
       if (y + window.innerHeight >= document.documentElement.scrollHeight - 8) {
-        nextActive = SECTION_ORDER[SECTION_ORDER.length - 1];
+        nextActive = SECTION_ORDER[lastIdx];
       }
 
       setActiveSection((prev) => (prev === nextActive ? prev : nextActive));
     };
 
+    measureSections();
+    syncProgressAndSection();
+
+    const resizeObserver = new ResizeObserver(() => {
+      measureSections();
+      syncProgressAndSection();
+      ScrollTrigger.refresh();
+    });
+    resizeObserver.observe(document.body);
+
+    const handleResize = () => {
+      measureSections();
+      syncProgressAndSection();
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
+
     if (reducedMotion) {
-      updateProgressAndSection();
-      window.addEventListener('scroll', updateProgressAndSection, { passive: true });
-      window.addEventListener('resize', updateProgressAndSection, { passive: true });
+      window.addEventListener('scroll', syncProgressAndSection, { passive: true });
       return () => {
-        window.removeEventListener('scroll', updateProgressAndSection);
-        window.removeEventListener('resize', updateProgressAndSection);
+        window.removeEventListener('scroll', syncProgressAndSection);
+        window.removeEventListener('resize', handleResize);
+        resizeObserver.disconnect();
       };
     }
 
     const lenis = new Lenis({
-      duration: 1.15,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      duration: 0.95,
+      easing: (t) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       touchMultiplier: 1.15,
     });
@@ -75,9 +128,8 @@ export function SmoothScrollProvider({
     const onLenisScroll = ({ velocity }: { velocity: number }) => {
       scrollVelocityRef.current = velocity;
       ScrollTrigger.update();
-      updateProgressAndSection();
+      syncProgressAndSection();
     };
-
     lenis.on('scroll', onLenisScroll);
 
     const tick = (time: number) => {
@@ -86,11 +138,9 @@ export function SmoothScrollProvider({
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 
-    updateProgressAndSection();
-    window.addEventListener('resize', updateProgressAndSection, { passive: true });
-
     return () => {
-      window.removeEventListener('resize', updateProgressAndSection);
+      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       gsap.ticker.remove(tick);
       lenis.off('scroll', onLenisScroll);
       lenis.destroy();
@@ -104,7 +154,7 @@ export function SmoothScrollProvider({
       if (!target) return;
 
       if (lenisRef.current && !reducedMotion) {
-        lenisRef.current.scrollTo(target, { duration: 1.1 });
+        lenisRef.current.scrollTo(target, { duration: 0.95 });
       } else {
         target.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
       }
@@ -116,6 +166,7 @@ export function SmoothScrollProvider({
     () => ({
       activeSection,
       scrollProgressRef,
+      stageProgressRef,
       scrollVelocityRef,
       scrollToSection,
     }),

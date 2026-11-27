@@ -1,7 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { KineticText } from '@/components/animations/KineticText';
 import { SectionEyebrow } from '@/components/ui/SectionEyebrow';
 import { MONOLITH_FINISHES, OWNER_PROFILE } from '@/data/portfolio';
@@ -22,61 +20,24 @@ export function AboutSection({
   isTouchPrimary,
   onAudioCue,
 }: AboutSectionProps) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (reducedMotion || !contentRef.current) return;
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    const ctx = gsap.context(() => {
-      const blocks = contentRef.current?.querySelectorAll('[data-about-reveal]');
-      if (!blocks?.length) return;
-
-      gsap.fromTo(
-        blocks,
-        { opacity: 0, y: 26 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.78,
-          stagger: 0.1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 72%',
-            once: true,
-          },
-        },
-      );
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, [reducedMotion]);
+  const [activePillar, setActivePillar] = useState(0);
 
   const activeFinishMeta =
     MONOLITH_FINISHES.find((item) => item.id === finish) ?? MONOLITH_FINISHES[0];
 
   return (
     <section
-      ref={sectionRef}
       id="about"
       data-section-id="about"
       aria-label="About and Philosophy"
-      className="relative z-20 flex min-h-[100svh] items-start px-4 pb-14 pt-20 sm:px-8 md:items-center md:px-12 md:py-16 lg:px-16"
+      className="relative z-20 flex min-h-[100svh] items-start px-4 pb-12 pt-20 sm:px-8 md:items-center md:px-12 md:py-16 lg:px-16"
     >
       <div className="mx-auto w-full max-w-6xl">
-        <div ref={contentRef} className="w-full max-w-xl space-y-4 sm:space-y-5 md:w-[50%]">
-          <div data-about-reveal>
-            <SectionEyebrow text="02 / About & Philosophy" />
-          </div>
+        <div className="w-full max-w-xl space-y-4 sm:space-y-5 md:w-[52%]">
+          <SectionEyebrow text="02 / About & Philosophy" />
 
-          {/* Expressive oversized philosophy quote */}
-          <h2
-            data-about-reveal
-            className="kinetic-headline font-display text-[clamp(2rem,4.1vw,3.35rem)] font-bold uppercase leading-[0.98] tracking-[-0.015em] text-white"
-          >
+          {/* Expressive masked philosophy centerpiece */}
+          <h2 className="kinetic-headline font-display text-[clamp(2rem,3.9vw,3.15rem)] font-bold uppercase leading-[0.98] tracking-[-0.015em] text-white">
             <KineticText
               text="DON'T JUST USE TECHNOLOGY."
               mode="words"
@@ -88,29 +49,56 @@ export function AboutSection({
                 text="EXPLORE IT, UNDERSTAND IT, AND BUILD SOMETHING WITH IT."
                 mode="words"
                 reducedMotion={reducedMotion}
-                delay={0.14}
+                delay={0.12}
               />
             </span>
           </h2>
 
-          <div data-about-reveal className="space-y-2.5 border-l border-white/15 pl-4 sm:pl-5">
+          {/* Interactive storytelling pillar selector */}
+          <div className="rounded-2xl border border-white/[0.08] bg-[#0a0a0d]/75 p-4 backdrop-blur-md">
+            <div className="flex flex-wrap gap-1.5">
+              {OWNER_PROFILE.aboutPillars.map((pillar, idx) => (
+                <button
+                  key={pillar.label}
+                  type="button"
+                  data-cursor="explore"
+                  onClick={() => {
+                    onAudioCue(660 + idx * 30);
+                    setActivePillar(idx);
+                  }}
+                  className={`cursor-pointer rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors ${
+                    activePillar === idx
+                      ? 'border-[#d6b384]/55 bg-[#d6b384]/15 text-white'
+                      : 'border-white/10 text-neutral-400 hover:border-white/25 hover:text-neutral-200'
+                  }`}
+                >
+                  0{idx + 1} · {pillar.label.split(' ')[0]}
+                </button>
+              ))}
+            </div>
+            <p className="mt-3 text-xs leading-relaxed text-neutral-200">
+              <span className="font-mono text-[#d6b384]">
+                {OWNER_PROFILE.aboutPillars[activePillar].label}:{' '}
+              </span>
+              {OWNER_PROFILE.aboutPillars[activePillar].detail}
+            </p>
+          </div>
+
+          <div className="space-y-2.5 rounded-2xl border border-white/[0.06] bg-[#060609]/80 p-4 backdrop-blur-sm md:rounded-none md:border-0 md:border-l md:border-white/15 md:bg-transparent md:p-0 md:pl-5 md:backdrop-blur-none">
             {OWNER_PROFILE.aboutParagraphs.map((paragraph, index) => (
               <p
                 key={index}
-                className="text-[13px] leading-[1.62] text-neutral-300 sm:text-[13.5px]"
+                className="text-[12.5px] leading-[1.6] text-neutral-300 sm:text-[13px]"
               >
                 {paragraph}
               </p>
             ))}
           </div>
 
-          {/* Interactive 3D Material Study preserved from Digital Systems */}
-          <div
-            data-about-reveal
-            className="rounded-2xl border border-white/[0.08] bg-[#0a0a0d]/85 p-4 backdrop-blur-md"
-          >
+          {/* Interactive 3D Stage Finish Controls */}
+          <div className="rounded-2xl border border-white/[0.08] bg-[#0a0a0d]/85 p-3.5 backdrop-blur-md">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-neutral-400">
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-neutral-400">
                 Interactive 3D Stage Finish
               </span>
               {!isTouchPrimary && (
@@ -123,7 +111,7 @@ export function AboutSection({
             <div
               role="radiogroup"
               aria-label="3D monolith material finish"
-              className="mt-3 grid grid-cols-3 gap-1.5 rounded-xl bg-black/55 p-1"
+              className="mt-2.5 grid grid-cols-3 gap-1.5 rounded-xl bg-black/55 p-1"
             >
               {MONOLITH_FINISHES.map((option) => {
                 const selected = finish === option.id;
@@ -133,12 +121,12 @@ export function AboutSection({
                     type="button"
                     role="radio"
                     aria-checked={selected}
-                    data-cursor="magnet"
+                    data-cursor="explore"
                     onClick={() => {
                       onAudioCue(720);
                       onFinishChange(option.id);
                     }}
-                    className={`relative cursor-pointer rounded-lg px-2.5 py-2 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors ${
+                    className={`relative cursor-pointer rounded-lg px-2.5 py-1.5 font-mono text-[10.5px] uppercase tracking-[0.14em] transition-colors ${
                       selected ? 'text-white' : 'text-neutral-400 hover:text-neutral-200'
                     }`}
                   >
@@ -155,13 +143,11 @@ export function AboutSection({
               })}
             </div>
 
-            <p className="mt-2.5 text-xs leading-relaxed text-neutral-400">
-              {activeFinishMeta.caption}
-            </p>
+            <p className="mt-2 text-[11.5px] text-neutral-400">{activeFinishMeta.caption}</p>
           </div>
         </div>
 
-        <div className="h-56 sm:h-64 md:hidden" aria-hidden="true" />
+        <div className="h-52 sm:h-64 md:hidden" aria-hidden="true" />
       </div>
     </section>
   );

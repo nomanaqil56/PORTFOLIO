@@ -56,7 +56,7 @@ export function CommandPalette({
       id: `proj-${proj.id}`,
       group: 'Case Studies',
       label: proj.title,
-      hint: proj.domain,
+      hint: proj.status,
       action: () => {
         onNavigate('projects');
         onSelectProject(proj);

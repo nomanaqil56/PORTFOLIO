@@ -13,7 +13,7 @@ export type QualityTier = 'high' | 'medium' | 'low';
 
 export type ViewportProfile = 'mobile' | 'tablet' | 'desktop';
 
-export type CursorState = 'default' | 'view' | 'explore' | 'open' | 'copy' | 'magnet';
+export type CursorState = 'default' | 'view' | 'explore' | 'open' | 'drag' | 'copy' | 'magnet';
 
 export interface SectionMeta {
   id: SectionId;
@@ -23,21 +23,16 @@ export interface SectionMeta {
   inTopNav?: boolean;
 }
 
-export interface CameraPose {
-  position: [number, number, number];
-  target: [number, number, number];
-}
-
-export interface MonolithPose {
-  position: [number, number, number];
-  rotation: [number, number, number];
+export interface FrustumStagePose {
+  cameraPosition: [number, number, number];
+  cameraTarget: [number, number, number];
+  /** Normalized screen anchor in [-1, 1] relative to camera frustum center */
+  screenAnchor: [number, number];
+  /** Depth offset along camera-to-target vector (positive = farther behind target plane) */
+  depthOffset: number;
   scale: number;
+  rotation: [number, number, number];
   accentHex: string;
-}
-
-export interface StagePose {
-  camera: CameraPose;
-  monolith: MonolithPose;
 }
 
 export type CapabilityMaturity = 'applied' | 'exploring';
@@ -56,36 +51,48 @@ export interface CapabilityCategory {
   items: CapabilityTech[];
 }
 
-export interface ProjectMedia {
-  src: string;
-  alt: string;
-  caption: string;
-}
+export type HonestProjectStatus =
+  | 'Experimental'
+  | 'In Development'
+  | 'Concept'
+  | 'Research / Exploration'
+  | 'Demonstrated Prototype';
 
-export type ProjectStatusTone = 'implemented' | 'partial' | 'in-progress' | 'concept';
+export type ProjectVisualTheme =
+  | 'nova-grid'
+  | 'minehost-network'
+  | 'blender-icosahedron'
+  | 'assistant-nodes'
+  | 'cuedrop-wave'
+  | 'duaen-editorial';
+
+export interface WorkflowStageNode {
+  id: string;
+  label: string;
+  detail: string;
+  implemented: boolean;
+}
 
 export interface ProjectCaseStudy {
   id: string;
   slug: string;
   index: string;
   title: string;
-  subtitle: string;
-  domain: string;
-  timeframe: string;
-  statusLabel: string;
-  statusTone: ProjectStatusTone;
-  accentHex: string;
-  summary: string;
+  category: string;
+  shortIntro: string;
+  overview: string[];
   motivation: string;
-  approach: string;
-  implementedDetails: string[];
-  limitationsOrScope: string[];
-  architecturePipeline: string[];
+  technicalExploration: string[];
+  challenges: string[];
+  status: HonestProjectStatus;
+  statusNote: string;
+  nextDirection: string;
   technologies: string[];
+  workflowNodes: WorkflowStageNode[];
+  visualTheme: ProjectVisualTheme;
+  accentHex: string;
   repoUrl?: string;
   liveUrl?: string;
-  media?: ProjectMedia[];
-  interactivePreview?: 'nova-hud' | 'assistant-orb' | 'cuedrop-widget';
 }
 
 export interface ExperimentItem {
@@ -95,10 +102,8 @@ export interface ExperimentItem {
   domain: string;
   status: string;
   description: string;
-  highlights: string[];
   technologies: string[];
   repoUrl?: string;
-  interactiveTrigger?: 'cycle-finish' | 'open-command';
 }
 
 export interface JourneyMilestone {

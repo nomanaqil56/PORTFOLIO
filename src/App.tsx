@@ -1,4 +1,4 @@
-import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { IntroCurtain } from '@/components/animations/IntroCurtain';
 import { MarqueeBackdrop } from '@/components/animations/MarqueeBackdrop';
 import { SmoothScrollProvider } from '@/components/animations/SmoothScrollProvider';
@@ -25,21 +25,35 @@ import type { MonolithFinish, ProjectCaseStudy } from '@/types/portfolio';
 
 const LazyPortfolioCanvas = lazy(() => import('@/scenes/PortfolioCanvas'));
 
-const FINISH_CYCLE: MonolithFinish[] = ['monolith', 'wireframe', 'optics'];
-
 function PortfolioShell() {
   const [finish, setFinish] = useState<MonolithFinish>('monolith');
+  const [spinMultiplier, setSpinMultiplier] = useState(1);
+  const [accentOverrideHex, setAccentOverrideHex] = useState<string | null>(null);
   const [commandOpen, setCommandOpen] = useState(false);
   const [activeCaseStudy, setActiveCaseStudy] = useState<ProjectCaseStudy | null>(null);
+
+  const dragOffsetRef = useRef({ yaw: 0, pitch: 0 });
 
   const reducedMotion = useReducedMotion();
   const { viewportProfile, qualityTier, dpr, webglSupported, isTouchPrimary } =
     useDeviceCapabilities();
-  const { scrollProgressRef, scrollVelocityRef, scrollToSection } = useScrollController();
+  const { scrollProgressRef, stageProgressRef, scrollVelocityRef, scrollToSection } =
+    useScrollController();
   const { soundEnabled, toggleSound, playCue } = useAudioFeedback(reducedMotion);
 
-  const handleCycleFinish = useCallback(() => {
-    setFinish((prev) => FINISH_CYCLE[(FINISH_CYCLE.indexOf(prev) + 1) % FINISH_CYCLE.length]);
+  const handleDragRotate = useCallback((dyaw: number, dpitch: number) => {
+    dragOffsetRef.current.yaw += dyaw;
+    dragOffsetRef.current.pitch = Math.max(
+      -0.65,
+      Math.min(0.65, dragOffsetRef.current.pitch + dpitch),
+    );
+  }, []);
+
+  const handleResetDrag = useCallback(() => {
+    dragOffsetRef.current = { yaw: 0, pitch: 0 };
+    setFinish('monolith');
+    setSpinMultiplier(1);
+    setAccentOverrideHex(null);
   }, []);
 
   const handleStepCaseStudy = useCallback(
@@ -54,7 +68,6 @@ function PortfolioShell() {
     [activeCaseStudy],
   );
 
-  // Global Ctrl+K / Cmd+K shortcut for Command Palette
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -80,18 +93,19 @@ function PortfolioShell() {
         Skip to content
       </a>
 
-      {/* Atmospheric layered grid & vignette */}
       <div aria-hidden="true" className="architectural-grid pointer-events-none fixed inset-0 z-0 opacity-60" />
       <div aria-hidden="true" className="studio-vignette pointer-events-none fixed inset-0 z-0" />
 
-      {/* Evolved WEB / DEV kinetic background */}
       <MarqueeBackdrop reducedMotion={reducedMotion} />
 
-      {/* Lazy-loaded interactive WebGL stage */}
       <Suspense fallback={<FallbackSculpture />}>
         <LazyPortfolioCanvas
           scrollProgressRef={scrollProgressRef}
+          stageProgressRef={stageProgressRef}
           scrollVelocityRef={scrollVelocityRef}
+          dragOffsetRef={dragOffsetRef}
+          accentOverrideHex={accentOverrideHex}
+          spinMultiplier={spinMultiplier}
           finish={finish}
           dpr={dpr}
           qualityTier={qualityTier}
@@ -116,6 +130,7 @@ function PortfolioShell() {
         <IntroSection
           reducedMotion={reducedMotion}
           isTouchPrimary={isTouchPrimary}
+          onDragRotate={handleDragRotate}
           onAudioCue={playCue}
         />
         <AboutSection
@@ -134,8 +149,12 @@ function PortfolioShell() {
         />
         <ExperimentsSection
           finish={finish}
-          onCycleFinish={handleCycleFinish}
-          onOpenCommandPalette={() => setCommandOpen(true)}
+          onFinishChange={setFinish}
+          spinMultiplier={spinMultiplier}
+          onSpinMultiplierChange={setSpinMultiplier}
+          accentOverrideHex={accentOverrideHex}
+          onAccentOverrideChange={setAccentOverrideHex}
+          onResetDrag={handleResetDrag}
           reducedMotion={reducedMotion}
           onAudioCue={playCue}
         />

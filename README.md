@@ -1,38 +1,21 @@
 # Noman Aqil — Interactive 3D Digital Portfolio
 
-An experimental dark-minimalist portfolio rebuilt with **React 19**, **TypeScript**, **Vite 8**, **Three.js**, **React Three Fiber**, **Drei**, **GSAP**, **Framer Motion**, **Lenis**, and **Tailwind CSS v4**, evolving the original HTML/Three.js slides (`Slide1.html` & `Slide2.html`, preserved at commit `57a54c6` on `main`).
+An interactive dark-minimalist portfolio rebuilt with **React 19**, **TypeScript**, **Vite 8**, **Three.js**, **React Three Fiber**, **Drei**, **GSAP**, **Framer Motion**, **Lenis**, and **Tailwind CSS v4**, evolving the original HTML/Three.js slides (`Slide1.html` & `Slide2.html`, preserved at commit `57a54c6` on `main`).
 
-## Key Capabilities & Experience
+## Core Architecture
 
-- **7-Stage Continuous Experience**: `Intro`, `About & Philosophy`, `Capabilities`, `Selected Projects`, `Experiments`, `Journey`, and `Contact` coordinated with Lenis smooth inertia and GSAP `ScrollTrigger`.
-- **Interactive WebGL Stage**: Lazy-loaded React Three Fiber `<Canvas>` with a beveled kinetic monolith (`Monolith`, `Topology`, `Optics`), local procedural `<Lightformer>` studio reflections, far-plane GLSL atmospheric fog shader, orbital particles, adaptive DPR/quality tiers, and a graceful SVG fallback.
-- **Dedicated Interaction System**: RAF-driven context-aware custom cursor (`VIEW`, `EXPLORE`, `OPEN`, `COPY`) for fine pointers, magnetic buttons, `Ctrl+K` / `⌘K` command navigation, masked typography reveals, and optional Web Audio feedback.
-- **Authentic Case Studies & Previews**:
-  - **NOVA-UI** (with interactive spatial HUD & telemetry mode preview)
-  - **MineHost** (with physical ARM64 Android device evidence captures)
-  - **Blender AI Studio** (with live Blender 5.3 viewport & Cycles PBR renders)
-  - **Assistant X** (with interactive `AssistantState` particle orb pipeline)
-  - **CueDrop** (interactive Android widget concept study)
-  - **Duaen Foundation Website** (accessible NGO frontend highlights)
-
-## Architecture
-
-```text
-src/
-  assets/               # Portrait and verified project evidence media
-  components/
-    animations/         # IntroCurtain, KineticText, MarqueeBackdrop, SmoothScrollProvider
-    interactions/       # CustomCursor, MagneticButton
-    navigation/         # TopNav, SideNavDots, CommandPalette, ScrollProgressBar
-    sections/           # Intro, About, Capabilities, Projects + Interactive Previews, Experiments, Journey, Contact
-    three/              # KineticMonolith, AtmosphereShader, StudioEnvironment, OrbitalParticles, SceneRig, Fallbacks
-    ui/                 # GlassPanel, ProfilePortrait, SectionEyebrow
-  data/                 # Authentic bio, capabilities, case studies, experiments, and journey milestones
-  hooks/                # Audio feedback, device capabilities, reduced motion, scroll controller
-  scenes/               # Lazy-loaded React Three Fiber Canvas
-  styles/               # Tailwind CSS v4 tokens, surfaces, and reduced-motion rules
-  types/                # Strict TypeScript portfolio models
-```
+- **Zero-Lag Frustum-Projected 3D Choreography**: Layout-measured section anchors (`ResizeObserver` + GSAP easing) drive camera and monolith world positions via perspective frustum projection (`stagePoses.ts`), arriving in exact synchronization with every section across desktop, tablet, and mobile viewports.
+- **Dedicated Interaction & Motion Separation**:
+  - **Custom Cursor**: RAF-driven contextual cursor (`VIEW`, `EXPLORE`, `OPEN`, `DRAG`, `COPY`) for fine pointers with automatic touch-device disablement.
+  - **Interactive 3D Stage**: Drag-to-rotate hero zone, real-time material finishes (`Monolith`, `Topology`, `Optics`), spin tempo and accent lighting controls, far-plane depth-tested GLSL atmospheric fog, and graceful SVG fallback.
+  - **Opt-In Audio & Command Index**: Muted-by-default Web Audio synthesis and `Ctrl+K` / `⌘K` command navigation.
+- **Typography & Diagram-Driven Case Studies (No Project Photos)**:
+  - **NOVA-UI**: Topographic coordinate grid, animated route spline, and 3D GLB coordinate breakdown.
+  - **MineHost**: Interactive 5-stage Android host -> server -> tunnel -> remote player networking diagram.
+  - **Blender AI Studio**: Live procedural 3D Truncated Icosahedron wireframe canvas (`12` pentagons + `20` hexagons) paired with interactive IPC (`127.0.0.1:9855`) workflow stages.
+  - **Assistant X**: Connected local-first intelligent node architecture explorer.
+  - **CueDrop**: Draggable harmonic waveform widget concept study.
+  - **Duaen Foundation Website**: Structured editorial information-architecture layout.
 
 ## Scripts
 

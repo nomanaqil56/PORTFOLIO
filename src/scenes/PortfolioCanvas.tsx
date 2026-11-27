@@ -12,7 +12,11 @@ import type { MonolithFinish, QualityTier, ViewportProfile } from '@/types/portf
 
 interface PortfolioCanvasProps {
   scrollProgressRef: MutableRefObject<number>;
+  stageProgressRef: MutableRefObject<number>;
   scrollVelocityRef: MutableRefObject<number>;
+  dragOffsetRef: MutableRefObject<{ yaw: number; pitch: number }>;
+  accentOverrideHex: string | null;
+  spinMultiplier: number;
   finish: MonolithFinish;
   dpr: [number, number];
   qualityTier: QualityTier;
@@ -24,7 +28,11 @@ interface PortfolioCanvasProps {
 
 export default function PortfolioCanvas({
   scrollProgressRef,
+  stageProgressRef,
   scrollVelocityRef,
+  dragOffsetRef,
+  accentOverrideHex,
+  spinMultiplier,
   finish,
   dpr,
   qualityTier,
@@ -107,10 +115,13 @@ export default function PortfolioCanvas({
             />
             <StudioEnvironment quality={qualityTier} accentColorRef={accentColorRef} />
             <SceneRig
-              scrollProgressRef={scrollProgressRef}
+              stageProgressRef={stageProgressRef}
               scrollVelocityRef={scrollVelocityRef}
               pointerRef={pointerRef}
+              dragOffsetRef={dragOffsetRef}
               accentColorRef={accentColorRef}
+              accentOverrideHex={accentOverrideHex}
+              spinMultiplier={spinMultiplier}
               finish={finish}
               viewportProfile={viewportProfile}
               qualityTier={qualityTier}

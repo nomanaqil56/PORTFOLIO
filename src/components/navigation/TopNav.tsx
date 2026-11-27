@@ -42,9 +42,9 @@ export function TopNav({
           {/* Left subtle identity anchor */}
           <button
             type="button"
-            data-cursor="magnet"
+            data-cursor="open"
             onClick={() => handleNavigate('intro')}
-            className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.22em] text-neutral-300 transition-colors hover:text-white"
+            className="shrink-0 cursor-pointer whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.22em] text-neutral-300 transition-colors hover:text-white"
           >
             NA <span className="text-neutral-600">//</span> 26
           </button>
@@ -57,7 +57,7 @@ export function TopNav({
                 <button
                   key={section.id}
                   type="button"
-                  data-cursor="magnet"
+                  data-cursor="open"
                   onClick={() => handleNavigate(section.id)}
                   aria-current={isActive ? 'location' : undefined}
                   className={`relative cursor-pointer py-1 text-[11.5px] font-medium uppercase tracking-[0.16em] transition-colors duration-300 ${

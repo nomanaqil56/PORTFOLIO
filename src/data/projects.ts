@@ -1,7 +1,3 @@
-import blenderPbrCloseupImg from '@/assets/projects/blender-pbr-closeup.jpg';
-import blenderViewportImg from '@/assets/projects/blender-viewport.jpg';
-import minehostDashboardImg from '@/assets/projects/minehost-dashboard.png';
-import minehostOnlineImg from '@/assets/projects/minehost-online.png';
 import type { ProjectCaseStudy } from '@/types/portfolio';
 
 export const FEATURED_PROJECTS: ProjectCaseStudy[] = [
@@ -10,232 +6,369 @@ export const FEATURED_PROJECTS: ProjectCaseStudy[] = [
     slug: 'nova-ui',
     index: '01',
     title: 'NOVA-UI',
-    subtitle: 'Autonomous Vehicle Interface, Dark Vector Navigation & 3D Chassis Layer',
-    domain: 'Interactive Web & Spatial 3D HUD',
-    timeframe: 'Oct 2026',
-    statusLabel: 'Implemented Prototype',
-    statusTone: 'implemented',
-    accentHex: '#79c8e8',
-    summary:
-      'An experimental self-driving car cockpit interface combining custom dark-mode MapLibre GL vector mapping, live route telemetry layers, and a synchronized Three.js 3D vehicle model.',
+    category: 'Interactive Web Development / Automotive UI / 3D Visualisation',
+    shortIntro: 'Interactive Automotive Interface & 3D Map Experience',
+    overview: [
+      'NOVA-UI is an experimental automotive interface project focused on creating a visually immersive digital experience inspired by next-generation vehicle cockpits.',
+      'The project explores how interactive mapping, 3D vehicle visualisation, and dark spatial UI design can operate together inside one cohesive browser environment.',
+      'Note: NOVA-UI is an interface and 3D visualisation exploration—real-time vehicle navigation, autonomous driving, and live physical vehicle telemetry have not been implemented.',
+    ],
     motivation:
-      'Conventional automotive UI templates separate navigation maps from vehicle state. NOVA-UI explores how a unified dark spatial canvas can connect route guidance, telemetry providers, and role-specific operational views (Driver, Technician, Admin) in one cohesive interface.',
-    approach:
-      'Built a custom MapLibre `CustomLayerInterface` (`NovaVehicle3DLayer`) rendering a GLB chassis (`Koenigsegg.glb`) mapped cleanly onto MapLibre world axes (+X East, +Y North, +Z Up) with a procedural Three.js vehicle fallback so rendering never breaks if the asset fails to load.',
-    implementedDetails: [
-      'Custom `novaStyle` dark vector map (`#080A0D` ground, glowing `#00D2FF` route line + blur halo)',
-      'Axis-corrected Three.js 3D vehicle renderer with glass, taillight emissive, wheel, and fallback geometry',
-      'Clean `VehicleDataProvider` telemetry abstraction separating mock simulation data from UI',
-      'Role-based modules for Driver (Navigation, Vehicle, Trips, Alerts), Technician (Diagnostics, Tests, Maintenance), and Admin',
+      'Conventional dashboard prototypes often treat navigation maps and 3D vehicle models as disconnected widgets. NOVA-UI investigates integrating a 3D vehicle mesh directly into a dark MapLibre GL coordinate space alongside role-oriented interface layouts.',
+    technicalExploration: [
+      'Integrated MapLibre GL with custom dark vector styling and debugged vector tile rendering issues.',
+      'Investigated alternative tile sources and experimented with OpenFreeMap Liberty styling (`liberty.json`) and custom dark style layers (`novaStyle.ts`).',
+      'Loaded a Koenigsegg GLB asset (`Koenigsegg.glb`) via Three.js `CustomLayerInterface` (`NovaVehicle3DLayer`), calibrating scale, Euler orientation (`XYZ`), and ground alignment inside MapLibre world coordinates.',
+      'Included a procedural Three.js vehicle silhouette fallback so the 3D layer degrades gracefully when GLB loading is unavailable.',
     ],
-    limitationsOrScope: [
-      'Vehicle telemetry currently runs through `MockProvider` rather than live CAN-bus or physical vehicle hardware.',
+    challenges: [
+      'Diagnosing broken initial vector tile configurations and aligning OpenFreeMap style sources cleanly.',
+      'Translating GLB native coordinates (+X Left, +Y Up, +Z Forward) into MapLibre’s world space (+X East, +Y North, +Z Up) without upside-down or floating meshes.',
     ],
-    architecturePipeline: [
-      'MapLibre GL Style & Worker',
-      'Custom 3D GLB / Fallback Layer',
-      'VehicleDataProvider Abstraction',
-      'Driver / Tech / Admin Views',
+    status: 'Experimental',
+    statusNote:
+      'Active UI & 3D map visualisation experiment; vehicle state uses mock provider scaffolding rather than physical hardware telemetry.',
+    nextDirection:
+      'Refine camera transitions between cockpit views and optimize GLB shader integration under dark map lighting.',
+    technologies: ['MapLibre GL', 'Three.js', '3D GLB Assets', 'React', 'TypeScript', 'Tailwind CSS'],
+    workflowNodes: [
+      {
+        id: 'maplibre',
+        label: 'MapLibre Engine',
+        detail: 'Dark vector canvas with OpenFreeMap / customized Liberty styling.',
+        implemented: true,
+      },
+      {
+        id: 'tile-debug',
+        label: 'Tile & Style Layer',
+        detail: 'Resolved initial tile rendering failures with custom dark vector layer paint.',
+        implemented: true,
+      },
+      {
+        id: 'glb-align',
+        label: '3D GLB Alignment',
+        detail: 'Calibrated Koenigsegg.glb scale, grounding, and XYZ rotation inside MapLibre.',
+        implemented: true,
+      },
+      {
+        id: 'cockpit-ui',
+        label: 'Cockpit Shell',
+        detail: 'Multi-view experimental automotive interface layout (non-telemetry simulation).',
+        implemented: true,
+      },
     ],
-    technologies: ['React', 'TypeScript', 'MapLibre GL', 'Three.js', 'Tailwind CSS', 'Vite'],
+    visualTheme: 'nova-grid',
+    accentHex: '#79c8e8',
     repoUrl: 'https://github.com/nomanaqil56/NOVA-UI',
-    interactivePreview: 'nova-hud',
   },
   {
     id: 'minehost',
     slug: 'minehost',
     index: '02',
     title: 'MineHost',
-    subtitle: 'Local ARM64 Android Minecraft Bedrock Server Host & Lifecycle Manager',
-    domain: 'Android Systems & Local Networking',
-    timeframe: 'Nov 2026 · v1.0.1',
-    statusLabel: 'Phase 1 Partial Acceptance',
-    statusTone: 'partial',
-    accentHex: '#5eead4',
-    summary:
-      'An Android application running a local Minecraft Bedrock-compatible server (Axolotl-PM 5.51.1 + pinned PHP 8.4.27 ZTS ARM64 binary) directly on device with LAN discovery, foreground hosting, and snapshot backups.',
+    category: 'Android Development / Networking / Mobile Infrastructure',
+    shortIntro: 'Minecraft Server Hosting Directly From Android',
+    overview: [
+      'MineHost is an Android application exploring the possibility of hosting a Minecraft Bedrock-compatible server locally on an ARM64 Android device.',
+      'The goal is to give players portable control over multiplayer server lifecycle, connection details, and world backups without relying entirely on external hosting providers.',
+    ],
     motivation:
-      'Hosting multiplayer worlds usually requires external VPS hardware or desktop machines. MineHost investigates running a managed PHP ZTS server binary natively inside Android app storage with clean start/stop controls and safe world backups.',
-    approach:
-      'Packaged a SHA-256-verified PHP 8.4.27 ZTS binary (`libphp.so`) alongside Axolotl-PM 5.51.1, managed via an Android foreground service, transport-filtered LAN IPv4 discovery, and ZIP backup/restore with pre-restore rollback snapshots.',
-    implementedDetails: [
-      'Verified on physical ARM64 hardware (Android 16 / API 36): PHP 8.4.27 ZTS + 17 required extensions active',
-      '64/64 JVM unit tests passing, Android lint clean, LAN discovery filtering `wlan0` while excluding cellular/VPN interfaces',
-      'Configurable NetherNet UDP port (`19132`), foreground persistence, collision-safe UUID backups, and offline restore verified',
+      'Dedicated server hosting typically depends on external VPS instances or desktop hardware. MineHost explores whether modern mobile hardware can act as a self-contained host—and confronts the real networking hurdles of reaching players outside local Wi-Fi.',
+    technicalExploration: [
+      'Managed local server process execution and lifecycle states inside an Android foreground service.',
+      'Built Gradle CI validation, Android lint checks, and 64 passing JVM unit tests covering runtime contracts, configuration, and LAN interface filtering.',
+      'Conducted physical Android device testing (`v1.0.1`) verifying local startup, LAN IPv4 discovery, and world backup/restore workflows.',
+      'Investigated relay and tunnelling strategies to understand cross-network connectivity across Wi-Fi and mobile data.',
     ],
-    limitationsOrScope: [
-      'Real secondary-client Bedrock gameplay (Gate 7) remains blocked awaiting a second physical test device.',
-      'Phase 2 public relay / NAT traversal (including legacy Playit binary execution under Android 10+ W^X restrictions) is not yet operational.',
-      'Java Edition hosting and Geyser cross-play are deferred.',
+    challenges: [
+      'Handling Android background lifecycle limits, wake-locks, and binary execution constraints.',
+      'Distinguishing local LAN reachability (`192.168.x.x`) from cross-network CGNAT/NAT traversal.',
+      'Resolving permanent cross-network tunnelling and completing secondary physical-client gameplay verification (currently unfinished).',
     ],
-    architecturePipeline: [
-      'Kotlin Foreground Service',
-      'Pinned PHP 8.4.27 ZTS (`libphp.so`)',
-      'Axolotl-PM 5.51.1 Engine',
-      'LAN Discovery & ZIP Snapshots',
+    status: 'In Development',
+    statusNote:
+      'Local Android hosting and 64 JVM unit tests validated; permanent cross-network tunnelling and multi-device gameplay remain ongoing challenges.',
+    nextDirection:
+      'Complete real secondary-client Bedrock verification and design a reliable Android-compliant relay / tunnel layer.',
+    technologies: ['Kotlin', 'Android SDK', 'Networking', 'Server Management', 'Tunnelling Research', 'Gradle'],
+    workflowNodes: [
+      {
+        id: 'host',
+        label: 'Android Host',
+        detail: 'Kotlin foreground service managing lifecycle, permissions, and storage.',
+        implemented: true,
+      },
+      {
+        id: 'server',
+        label: 'Minecraft Server',
+        detail: 'Local Bedrock-compatible server runtime, world persistence, and port config.',
+        implemented: true,
+      },
+      {
+        id: 'tunnel',
+        label: 'Networking / Tunnel Layer',
+        detail: 'LAN discovery working; permanent cross-network relay/tunnelling remains in progress.',
+        implemented: false,
+      },
+      {
+        id: 'remote',
+        label: 'Remote Connection',
+        detail: 'NAT / CGNAT traversal target for reaching beyond host Wi-Fi.',
+        implemented: false,
+      },
+      {
+        id: 'player',
+        label: 'Minecraft Player',
+        detail: 'Target multiplayer client endpoint (local LAN tested; remote client pending).',
+        implemented: false,
+      },
     ],
-    technologies: ['Kotlin', 'Android SDK', 'PHP 8.4 ZTS', 'Axolotl-PM', 'Foreground Service', 'Gradle'],
+    visualTheme: 'minehost-network',
+    accentHex: '#5eead4',
     repoUrl: 'https://github.com/nomanaqil56/MineHost',
-    media: [
-      {
-        src: minehostDashboardImg,
-        alt: 'MineHost 1.0.1 physical device dashboard showing online Bedrock server on port 19132',
-        caption: 'Physical device dashboard capture (`v101_dashboard.png`) — server online on port 19132.',
-      },
-      {
-        src: minehostOnlineImg,
-        alt: 'MineHost 1.0.1 server detail view showing LAN IP 192.168.1.10:19132 and relay diagnostic state',
-        caption: 'Honest network diagnostics (`v101_server_online.png`) — LAN IP verified alongside explicit RELAY ERROR state.',
-      },
-    ],
   },
   {
     id: 'blender-ai-studio',
     slug: 'blender-ai-studio',
     index: '03',
     title: 'Blender AI Studio',
-    subtitle: 'Autonomous Desktop AI Agent Controlling Live Blender 5.3 via IPC & Vision',
-    domain: 'Applied AI, 3D Automation & Local LLMs',
-    timeframe: 'Nov 2026',
-    statusLabel: '10/10 Benchmark Suite Passed',
-    statusTone: 'implemented',
-    accentHex: '#d6b384',
-    summary:
-      'An autonomous 3D workflow engine connecting local LLMs (Qwen2.5-Coder-7B & Qwen3.5-9B via LM Studio) to a live desktop Blender 5.3 session using main-thread `bpy.app.timers` IPC, PBR shader synthesis, and Cycles OptiX rendering.',
+    category: 'Artificial Intelligence / 3D Development / Automation',
+    shortIntro: 'Autonomous AI-Assisted 3D Creation Workflow',
+    overview: [
+      'Blender AI Studio investigates connecting an autonomous AI agent directly to a live desktop Blender instance so the model can inspect the scene, issue structured operations, and iteratively refine 3D assets.',
+      'Rather than generating disconnected one-off scripts, the architecture establishes persistent inter-process communication with Blender while respecting Blender’s strict main-thread execution model.',
+    ],
     motivation:
-      'One-shot prompt-to-mesh tools lose scene context and cannot iteratively refine geometry, seams, lighting, or materials. Blender AI Studio treats Blender like an interactive studio workspace where an agent inspects objects, edits modifiers, and visually verifies renders.',
-    approach:
-      'Built a persistent localhost socket bridge (`127.0.0.1:9855`) and 7-tab Blender 5.3 addon dispatching schema-validated tool calls onto Blender’s main loop, paired with strict 8GB VRAM concurrency budgeting on RTX 5060 Laptop GPU.',
-    implementedDetails: [
-      'Constructed a watertight 32-panel truncated-icosahedron football (`12` pentagons, `20` hexagons, `4,700` verts, `0` non-manifold edges) with bevel seams, cast inflation, and Principled BSDF leather shaders',
-      'Validated 6 multi-turn self-correction prompts (darkening leather, deepening seams, switching to 3-point lighting, scaling/rotating without duplication, and safe invalid-action recovery)',
-      'Passed 10/10 automated workflow benchmarks including procedural PBR maps (`AerospaceAlloy`), GLB export QA, Cycles OptiX 720p rendering, and offline air-gapped operation',
+      'Static prompt-to-script tools break down on multi-step refinement tasks like adjusting bevel depth, lighting balance, or material roughness. Connecting an agent directly to live Blender enables conversational iteration inside an active 3D scene.',
+    technicalExploration: [
+      'Implemented a local socket IPC bridge operating on `127.0.0.1:9855` between external AI tooling and the running Blender addon.',
+      'Scheduled Python `bpy` mesh, material, and camera commands safely on Blender’s main loop via `bpy.app.timers` to avoid socket-thread crashes.',
+      'Demonstrated procedural football creation using a truncated icosahedron topology: 12 pentagonal faces, 20 hexagonal faces, recessed bevel seams, spherical cast inflation, and leather-inspired Principled BSDF materials.',
+      'Tested Cycles rendering with OptiX GPU acceleration and local LLM workflows on Windows 11 with an NVIDIA RTX 5060 Laptop GPU.',
     ],
-    limitationsOrScope: [
-      'Designed around strict sequential GPU scheduling within 8GB VRAM (never running heavy local diffusion concurrently with Cycles GPU rendering).',
+    challenges: [
+      'Preventing crashes caused by mutating `bpy` scene structures from background IPC threads.',
+      'Managing 8GB GPU VRAM contention between local language/vision models and Cycles OptiX rendering.',
+      'Maintaining spatial object context across iterative follow-up refinements without duplicating geometry.',
     ],
-    architecturePipeline: [
-      'Qwen2.5-Coder-7B Tool Planner',
-      'Socket Bridge (127.0.0.1:9855)',
-      'bpy.app.timers Main-Thread Execution',
-      'Cycles OptiX + Qwen3.5 Vision QA',
+    status: 'Demonstrated Prototype',
+    statusNote:
+      'Live IPC bridge (`127.0.0.1:9855`), `bpy.app.timers` execution, and procedural football Cycles workflow demonstrated on RTX 5060 hardware; multimodal autonomy continues evolving.',
+    nextDirection:
+      'Expand autonomous scene understanding and multi-object layout reasoning across complex architectural assemblies.',
+    technologies: ['Python', 'Blender API (bpy)', 'IPC (127.0.0.1:9855)', 'AI Agents', 'Procedural 3D', 'Local Models'],
+    workflowNodes: [
+      {
+        id: 'agent',
+        label: 'AI Agent',
+        detail: 'Parses natural-language 3D tasks into structured schema-validated tool calls.',
+        implemented: true,
+      },
+      {
+        id: 'ipc',
+        label: 'IPC Bridge',
+        detail: 'Localhost socket bridge (`127.0.0.1:9855`) coupled with `bpy.app.timers` main-thread dispatch.',
+        implemented: true,
+      },
+      {
+        id: 'bpy',
+        label: 'Blender API',
+        detail: 'Direct scene inspection, object transforms, and modifier orchestration.',
+        implemented: true,
+      },
+      {
+        id: 'scene',
+        label: 'Scene Construction',
+        detail: 'Procedural truncated icosahedron (12 pentagons, 20 hexagons) & recessed seam bevels.',
+        implemented: true,
+      },
+      {
+        id: 'materials',
+        label: 'Materials & Lighting',
+        detail: 'Principled BSDF leather shaders and 3-point studio lighting setups.',
+        implemented: true,
+      },
+      {
+        id: 'render',
+        label: 'Rendering',
+        detail: 'Cycles rendering accelerated via OptiX GPU on Windows 11 (RTX 5060 Laptop GPU).',
+        implemented: true,
+      },
     ],
-    technologies: ['Python', 'Blender 5.3 (bpy)', 'LM Studio', 'Qwen2.5-Coder', 'Cycles OptiX', 'PBR Shaders'],
+    visualTheme: 'blender-icosahedron',
+    accentHex: '#d6b384',
     repoUrl: 'https://github.com/nomanaqil56/Blender-Workflow',
-    media: [
-      {
-        src: blenderViewportImg,
-        alt: 'Live Blender 5.3 viewport showing three-point studio lighting around truncated icosahedron football mesh',
-        caption: 'Live Blender 5.3 viewport during Test 6.3 — three-point studio lighting rig around the 32-panel truncated icosahedron.',
-      },
-      {
-        src: blenderPbrCloseupImg,
-        alt: 'Close-up render of Blender AI Studio PBR leather surface roughness and panel seams',
-        caption: 'Close-up Cycles surface study showing Principled BSDF leather sheen and physical recessed bevel seams.',
-      },
-    ],
   },
   {
     id: 'assistant-x',
     slug: 'assistant-x',
     index: '04',
     title: 'Assistant X',
-    subtitle: 'Local-First Android AI Assistant with Fluid Particle Orb & Intent Engine',
-    domain: 'Android Compose UI & On-Device Assistance',
-    timeframe: 'Oct 2026',
-    statusLabel: 'In Active Development',
-    statusTone: 'in-progress',
-    accentHex: '#60a5fa',
-    summary:
-      'A local-first Android assistant concept and Compose application combining a state-driven fluid particle orb (`AssistantOrb`), multi-session chat drawer, command history, and a deterministic `CommandParser -> ActionValidator -> ActionExecutor` pipeline.',
+    category: 'Artificial Intelligence / Android Development / Personal Computing',
+    shortIntro: 'Offline-First Personal AI Assistant for Android',
+    overview: [
+      'Assistant X is an ongoing exploration into a local-first personal Android assistant designed around privacy, calm minimalism, and direct interaction with the Android device environment.',
+      'Instead of acting solely as a cloud chat wrapper, the architecture aims to bridge local intent understanding with permission-aware device actions while optionally using online inference when needed.',
+    ],
     motivation:
-      'Cloud voice assistants create latency and privacy friction for everyday device actions. Assistant X explores a cinematic, calm, borderless Android assistant capable of parsing natural commands locally and reacting visually across processing stages.',
-    approach:
-      'Implemented a reactive `AssistantStateManager` driving `IDLE -> PROCESSING -> PLANNING -> EXECUTING -> SPEAKING -> COMPLETED` transitions, paired with Jetpack Compose Canvas particle physics, app package resolution, and Android `TextToSpeech` voice feedback.',
-    implementedDetails: [
-      'Deterministic `CommandParser` supporting `"open <app>"`, `"launch <app>"`, `"go home"`, and `"go back"` intents',
-      '`ActionExecutor` launching resolved Android applications with explicit `ActivityNotFoundException` and `SecurityException` guards, plus Android Home navigation',
-      'Multi-harmonic `AssistantOrb` rendered on Compose Canvas alongside multi-session side menu and current-chat command history',
+      'Voice assistants are often tethered to cloud latency and fail when offline or asked to coordinate straightforward device routines transparently.',
+    technicalExploration: [
+      'Built an early Jetpack Compose interface featuring multi-session chats, current-chat command history, and a minimal borderless visual theme.',
+      'Implemented a structured Kotlin command pipeline (`CommandParser -> ActionValidator -> ActionExecutor`) supporting initial local app launching, Home navigation, and Android `TextToSpeech` feedback.',
+      'Designed the conceptual architecture for local LLM reasoning, optional cloud escalation, and overlay/lock-screen accessibility.',
     ],
-    limitationsOrScope: [
-      'Global `"go back"` and deep in-app UI automation remain intended vision items requiring an `AccessibilityService` integration (currently surfaces an honest diagnostic message).',
-      'On-device NLU/LLM expansion beyond structured intent parsing is part of the forward roadmap.',
+    challenges: [
+      'Designing safe, permission-aware Android action execution (`AccessibilityService` boundaries for global navigation and cross-app control remain unimplemented).',
+      'Balancing compact mobile memory budgets for future local language model integration.',
     ],
-    architecturePipeline: [
-      'CommandParser Intent Extraction',
-      'ActionValidator & AppResolver',
-      'ActionExecutor Android Intents',
-      'TextToSpeech & Compose Orb',
+    status: 'In Development',
+    statusNote:
+      'Ongoing exploration: Compose UI and basic local intent routing exist; full local LLM inference, voice capture pipelines, and Accessibility-level OS automation remain part of the concept vision.',
+    nextDirection:
+      'Integrate lightweight on-device model inference and explicit permission workflows for multi-step Android actions.',
+    technologies: ['Android', 'Kotlin', 'Jetpack Compose', 'Local AI Vision', 'Intent Architecture'],
+    workflowNodes: [
+      {
+        id: 'input',
+        label: 'User Command',
+        detail: 'Text input implemented in Compose; full voice capture remains in design exploration.',
+        implemented: true,
+      },
+      {
+        id: 'local-ai',
+        label: 'Local Processing',
+        detail: 'Deterministic intent parsing implemented; local LLM reasoning planned.',
+        implemented: false,
+      },
+      {
+        id: 'hybrid',
+        label: 'Optional Cloud Bridge',
+        detail: 'Planned hybrid fallback when internet connectivity and user consent are available.',
+        implemented: false,
+      },
+      {
+        id: 'actions',
+        label: 'Android Actions',
+        detail: 'App launch & Home intents active; global Accessibility automation planned.',
+        implemented: true,
+      },
     ],
-    technologies: ['Kotlin', 'Jetpack Compose', 'Material 3', 'Coroutines / StateFlow', 'Android TTS'],
+    visualTheme: 'assistant-nodes',
+    accentHex: '#60a5fa',
     repoUrl: 'https://github.com/nomanaqil56/Assistant-X',
-    interactivePreview: 'assistant-orb',
   },
   {
     id: 'cuedrop',
     slug: 'cuedrop',
     index: '05',
     title: 'CueDrop',
-    subtitle: 'Music Moment Sharing & Ambient Android Home-Screen Widget Concept',
-    domain: 'Mobile Interaction & Product Concept',
-    timeframe: 'Concept Study',
-    statusLabel: 'Concept Exploration',
-    statusTone: 'concept',
-    accentHex: '#f472b6',
-    summary:
-      'An interaction-first Android widget concept built around capturing and sharing specific memorable timestamps from a song — turning passive playback widgets into expressive musical memory cards.',
+    category: 'Mobile Application Concept / UI Design / Music Experience',
+    shortIntro: 'A Personal Music Experience for the Home Screen',
+    overview: [
+      'CueDrop is a concept for a music-focused Android widget designed around saving and revisiting the exact emotional moment of a song rather than displaying a generic album-art player.',
+      'Users pick a favorite track, isolate a specific duration or lyric cue, and surface that personalized moment directly on their home screen through minimalistic waveform visuals.',
+    ],
     motivation:
-      'Standard music widgets only show play/pause and track title. When people share music, they rarely want to share an entire four-minute song blindly — they want to highlight the exact 15-second drop, lyric, or bridge that stood out.',
-    approach:
-      'Explored an ambient, low-friction widget model where album art palette extraction drives dark subtle backdrop tinting, paired with a tactile timeline scrubber to mark a timestamp cue and generate a clean shareable moment card.',
-    implementedDetails: [
-      'Defined the core widget gesture loop: mark cue timestamp -> preview snippet card -> share to close circle',
-      'Designed compact dark-glass Android widget typography and minimal playback affordances',
+      'Most music widgets reduce songs to play/pause buttons and cover thumbnails. CueDrop asks how a home screen can preserve personal musical memories cleanly while adapting naturally to any wallpaper.',
+    technicalExploration: [
+      'Mapped the 6-step user journey: select song -> choose duration -> identify lyric/moment -> save cue -> render ambient widget -> revisit & replay.',
+      'Explored minimalistic audio-waveform patterns and adaptive surface contrast so widgets feel native across diverse home-screen wallpapers.',
     ],
-    limitationsOrScope: [
-      'CueDrop is currently an interface and interaction concept exploration; no production Android APK or public repository has been shipped yet.',
+    challenges: [
+      'Designing expressive musical identity inside compact Android widget dimensions without visual clutter or heavy album-art boxes.',
+      'Coordinating Android media-session timestamp seeking and clean widget refresh budgets once implementation begins.',
     ],
-    architecturePipeline: [
-      'Active Playback Listener (Concept)',
-      'Timestamp Cue Marker',
-      'Dynamic Album Palette Card',
-      'Zero-Friction Share Sheet',
+    status: 'Concept',
+    statusNote:
+      'Pure product & interaction design concept; no Android application codebase or working widget implementation has been built yet.',
+    nextDirection:
+      'Prototype Glance/Compose Android widget layouts and explore lightweight playback-cue deep linking.',
+    technologies: ['Music Experience', 'Android Widget UX', 'UI Design', 'Interaction Design'],
+    workflowNodes: [
+      {
+        id: 'select',
+        label: 'Select Track',
+        detail: 'Choose a meaningful song from playback history or active listening.',
+        implemented: false,
+      },
+      {
+        id: 'cue',
+        label: 'Mark Moment',
+        detail: 'Trim a specific timestamp window or lyric section as a personal cue.',
+        implemented: false,
+      },
+      {
+        id: 'waveform',
+        label: 'Waveform Identity',
+        detail: 'Render minimalistic frequency geometry that adapts calmly to wallpapers.',
+        implemented: false,
+      },
+      {
+        id: 'widget',
+        label: 'Home-Screen Replay',
+        detail: 'One-tap revisit from the personalized home-screen widget.',
+        implemented: false,
+      },
     ],
-    technologies: ['Android Widget UX', 'Interaction Design', 'Micro-Typography', 'Motion Concept'],
-    interactivePreview: 'cuedrop-widget',
+    visualTheme: 'cuedrop-wave',
+    accentHex: '#f472b6',
   },
   {
     id: 'duaen-foundation',
     slug: 'duaen-foundation',
     index: '06',
     title: 'Duaen Foundation Website',
-    subtitle: 'Accessible Multi-Route Frontend Architecture for a Social Welfare NGO',
-    domain: 'Production Web Engineering & Accessibility',
-    timeframe: 'Nov 2026',
-    statusLabel: 'Frontend Implemented',
-    statusTone: 'implemented',
-    accentHex: '#e07a5f',
-    summary:
-      'Designed and implemented a responsive, WCAG 2.2 AA–conscious React + TypeScript website for Duaen Foundation NGO (`duaenfoundationngo.in`), uniting program storytelling, official emblem extraction, and transparent content governance.',
+    category: 'Web Development / UI Implementation / Content Presentation',
+    shortIntro: 'Website Development for a Non-Profit Organisation',
+    overview: [
+      'Contributed website architecture, responsive UI implementation, and structured content presentation for Duaen Foundation NGO (`duaenfoundationngo.in`).',
+      'The focus centered on clear storytelling around grassroots education, women’s empowerment, and healthcare initiatives while keeping visual refinements faithful to the organization’s calm editorial identity.',
+    ],
     motivation:
-      'Community welfare organizations need trustworthy digital communication that works cleanly on low-end mobile phones without fabricating unverified metrics, fake payment forms, or unapproved credentials.',
-    approach:
-      'Engineered an 11-page React Router v7 application with Tailwind CSS v4 design tokens (`#24324A` navy, `#C45D42` terracotta, `#F7F1E8` warm cream), extracted transparent brand marks from `Logo.pdf`, and maintained a strict `CONTENT_VERIFICATION.md` registry separating confirmed details from pending legal/payment items.',
-    implementedDetails: [
-      'Implemented accessible navigation, skip links, `:focus-visible` outlines, WAI-ARIA accordions, and keyboard-navigable lightbox photo gallery',
-      'Enforced truthful prototype behavior — non-transactional Donate guidance and explicit demo-only form notices instead of misleading fake submissions',
-      'Configured `vercel.json` SPA routing and automated static analysis via `tsc -b` + `oxlint` (`0` errors)',
+      'Non-profit websites need clear information hierarchy, trustworthy presentation of verified organizational records, and dependable accessibility across everyday mobile devices.',
+    technicalExploration: [
+      'Organized homepage sections, program overviews, Team and Career pages, and an accessible Lightbox photo gallery.',
+      'Improved Volunteer and Contact workflows with client-side validation and secure volunteer attachment checks (extension, MIME, and executable signature filtering).',
+      'Integrated official registration reference (`GHA/00572/2020-21`), direct phone/email contact cards, and transparent verification notices (`CONTENT_VERIFICATION.md`).',
     ],
-    limitationsOrScope: [
-      'Frontend-only implementation: volunteer/contact enquiries do not transmit to a backend server, and official payment/registration IDs await organizational confirmation per `CONTENT_VERIFICATION.md`.',
+    challenges: [
+      'Presenting sensitive organizational, volunteer, and donation guidance truthfully without fabricated claims or misleading backend-less form success states.',
+      'Maintaining cohesive typography and responsive spacing across 11 routes while integrating diverse community program content.',
     ],
-    architecturePipeline: [
-      'Design Tokens (Tailwind v4)',
-      'React Router v7 (11 Routes)',
-      'WCAG 2.2 AA Components & Lightbox',
-      'CONTENT_VERIFICATION Audit Gate',
+    status: 'Demonstrated Prototype',
+    statusNote:
+      'Frontend routes, Team/Career pages, gallery lightbox, and attachment validation implemented; backend enquiry delivery and pending statutory records remain documented in CONTENT_VERIFICATION.md.',
+    nextDirection:
+      'Connect verified backend form endpoints and publish approved statutory documents as organizational confirmation completes.',
+    technologies: ['React 19', 'TypeScript', 'Tailwind CSS v4', 'React Router v7', 'Responsive UI'],
+    workflowNodes: [
+      {
+        id: 'ia',
+        label: 'Information Architecture',
+        detail: '11 structured routes covering Home, About, Programs, Impact, Team, and Career.',
+        implemented: true,
+      },
+      {
+        id: 'gallery',
+        label: 'Gallery & Editorial UI',
+        detail: 'Accessible Lightbox photo presentation and calm navy/terracotta/cream editorial grids.',
+        implemented: true,
+      },
+      {
+        id: 'forms',
+        label: 'Volunteer & Contact UX',
+        detail: 'Validated forms with document attachment sanitization and honest submission notices.',
+        implemented: true,
+      },
+      {
+        id: 'governance',
+        label: 'Content Governance',
+        detail: 'Official registration presentation paired with strict CONTENT_VERIFICATION.md auditing.',
+        implemented: true,
+      },
     ],
-    technologies: ['React 19', 'TypeScript', 'Tailwind CSS v4', 'React Router v7', 'Vite 8', 'Oxlint'],
+    visualTheme: 'duaen-editorial',
+    accentHex: '#e07a5f',
     liveUrl: 'https://duaenfoundationngo.in',
   },
 ];

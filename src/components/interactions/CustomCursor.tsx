@@ -11,6 +11,7 @@ const LABEL_MAP: Record<CursorState, string> = {
   view: 'VIEW',
   explore: 'EXPLORE',
   open: 'OPEN',
+  drag: 'DRAG',
   copy: 'COPY',
 };
 
@@ -44,7 +45,10 @@ export function CustomCursor({ disabled }: CustomCursorProps) {
         const attr = customEl.getAttribute('data-cursor') as CursorState | null;
         if (attr && attr in LABEL_MAP) return attr;
       }
-      if (target.closest('a, button, [role="button"], [role="radio"]')) {
+      if (target.closest('nav a, nav button')) {
+        return 'open';
+      }
+      if (target.closest('a, button, [role="button"], [role="radio"], [role="tab"]')) {
         return 'magnet';
       }
       return 'default';
@@ -65,8 +69,8 @@ export function CustomCursor({ disabled }: CustomCursorProps) {
     const onPointerLeave = () => setVisible(false);
 
     const tick = () => {
-      ringPos.x += (pointer.x - ringPos.x) * 0.22;
-      ringPos.y += (pointer.y - ringPos.y) * 0.22;
+      ringPos.x += (pointer.x - ringPos.x) * 0.24;
+      ringPos.y += (pointer.y - ringPos.y) * 0.24;
 
       if (dotRef.current) {
         dotRef.current.style.transform = `translate3d(${pointer.x}px, ${pointer.y}px, 0)`;
@@ -102,11 +106,7 @@ export function CustomCursor({ disabled }: CustomCursorProps) {
         visible ? 'opacity-100' : 'opacity-0'
       }`}
     >
-      {/* Trailing context-aware ring */}
-      <div
-        ref={ringRef}
-        className="fixed left-0 top-0 -ml-5 -mt-5 will-change-transform"
-      >
+      <div ref={ringRef} className="fixed left-0 top-0 -ml-5 -mt-5 will-change-transform">
         <div
           className={`flex items-center justify-center rounded-full border transition-all duration-200 ease-out ${
             isLabeled
@@ -124,11 +124,7 @@ export function CustomCursor({ disabled }: CustomCursorProps) {
         </div>
       </div>
 
-      {/* Precision focal dot */}
-      <div
-        ref={dotRef}
-        className="fixed left-0 top-0 -ml-[2.5px] -mt-[2.5px] will-change-transform"
-      >
+      <div ref={dotRef} className="fixed left-0 top-0 -ml-[2.5px] -mt-[2.5px] will-change-transform">
         <div
           className={`rounded-full bg-white transition-transform duration-150 ${
             isLabeled ? 'h-1 w-1 scale-0' : 'h-[5px] w-[5px] scale-100'

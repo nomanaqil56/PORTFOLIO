@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
+import gsap from 'gsap';
 import type { MutableRefObject } from 'react';
 import * as THREE from 'three';
 import { KineticMonolith } from '@/components/three/KineticMonolith';
@@ -7,10 +8,13 @@ import { createSampledStageTargets, sampleStagePose } from '@/components/three/s
 import type { MonolithFinish, QualityTier, ViewportProfile } from '@/types/portfolio';
 
 interface SceneRigProps {
-  scrollProgressRef: MutableRefObject<number>;
+  stageProgressRef: MutableRefObject<number>;
   scrollVelocityRef: MutableRefObject<number>;
   pointerRef: MutableRefObject<{ x: number; y: number }>;
+  dragOffsetRef: MutableRefObject<{ yaw: number; pitch: number }>;
   accentColorRef: MutableRefObject<THREE.Color>;
+  accentOverrideHex: string | null;
+  spinMultiplier: number;
   finish: MonolithFinish;
   viewportProfile: ViewportProfile;
   qualityTier: QualityTier;
@@ -18,146 +22,146 @@ interface SceneRigProps {
   isTouchPrimary: boolean;
 }
 
+/**
+ * Authoritative 3D synchronization rig:
+ * - `stageGroupRef` is driven directly (zero exponential chasing lag) from layout-anchored `stageProgressRef`
+ *   plus a one-shot GSAP entrance timeline on initial mount.
+ * - `interactionGroupRef` isolates cursor parallax, user drag rotation, and subtle idle float so
+ *   secondary interactions never overwrite authoritative stage positioning.
+ */
 export function SceneRig({
-  scrollProgressRef,
+  stageProgressRef,
   scrollVelocityRef,
   pointerRef,
+  dragOffsetRef,
   accentColorRef,
+  accentOverrideHex,
+  spinMultiplier,
   finish,
   viewportProfile,
   qualityTier,
   reducedMotion,
   isTouchPrimary,
 }: SceneRigProps) {
-  const monolithRef = useRef<THREE.Group>(null);
-  const lookAtTargetRef = useRef(new THREE.Vector3(0, 0, 0));
+  const stageGroupRef = useRef<THREE.Group>(null);
+  const interactionGroupRef = useRef<THREE.Group>(null);
+  const smoothPointerRef = useRef({ x: 0, y: 0 });
+  const overrideColor = useMemo(() => new THREE.Color(), []);
   const sampledTargets = useMemo(() => createSampledStageTargets(), []);
-  const { camera } = useThree();
+  const entranceRef = useRef({
+    scaleMult: reducedMotion ? 1 : 0.72,
+    yOffset: reducedMotion ? 0 : -0.35,
+    rotOffset: reducedMotion ? 0 : -0.55,
+  });
 
+  const { camera, size } = useThree();
+
+  // Single authoritative GSAP entrance choreography synchronized with IntroCurtain exit
   useEffect(() => {
-    sampleStagePose(scrollProgressRef.current, viewportProfile, sampledTargets);
-    camera.position.copy(sampledTargets.cameraPosition);
-    lookAtTargetRef.current.copy(sampledTargets.cameraTarget);
-    camera.lookAt(lookAtTargetRef.current);
-    accentColorRef.current.copy(sampledTargets.accentColor);
-
-    if (monolithRef.current) {
-      monolithRef.current.position.copy(sampledTargets.monolithPosition);
-      monolithRef.current.rotation.copy(sampledTargets.monolithRotation);
-      monolithRef.current.scale.setScalar(sampledTargets.monolithScale);
+    if (reducedMotion) {
+      entranceRef.current.scaleMult = 1;
+      entranceRef.current.yOffset = 0;
+      entranceRef.current.rotOffset = 0;
+      return;
     }
-  }, [accentColorRef, camera, sampledTargets, scrollProgressRef, viewportProfile]);
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        entranceRef.current,
+        { scaleMult: 0.72, yOffset: -0.35, rotOffset: -0.55 },
+        {
+          scaleMult: 1,
+          yOffset: 0,
+          rotOffset: 0,
+          duration: 1.05,
+          delay: 0.28,
+          ease: 'power3.out',
+        },
+      );
+    });
+
+    return () => ctx.revert();
+  }, [reducedMotion]);
 
   useFrame((state, rawDelta) => {
     const delta = Math.min(rawDelta, 0.05);
-    const damping = reducedMotion ? 18 : 6.2;
+    const fovDeg = camera instanceof THREE.PerspectiveCamera ? camera.fov : 45;
+    const aspect = size.width / Math.max(1, size.height);
 
-    sampleStagePose(scrollProgressRef.current, viewportProfile, sampledTargets);
-    accentColorRef.current.lerp(sampledTargets.accentColor, Math.min(1, delta * 5));
+    // 1. Sample exact frustum-projected pose for the current layout stage (ZERO chasing lag!)
+    sampleStagePose(stageProgressRef.current, viewportProfile, fovDeg, aspect, sampledTargets);
 
-    const pointerOffsetX = reducedMotion || isTouchPrimary ? 0 : pointerRef.current.x * 0.24;
-    const pointerOffsetY = reducedMotion || isTouchPrimary ? 0 : -pointerRef.current.y * 0.16;
+    if (accentOverrideHex) {
+      overrideColor.set(accentOverrideHex);
+      accentColorRef.current.copy(overrideColor);
+    } else {
+      accentColorRef.current.copy(sampledTargets.accentColor);
+    }
 
-    camera.position.x = THREE.MathUtils.damp(
-      camera.position.x,
-      sampledTargets.cameraPosition.x + pointerOffsetX * 0.85,
-      damping,
+    // Smooth only subtle pointer micro-parallax, never the scroll choreography
+    const pointerTargetX = reducedMotion || isTouchPrimary ? 0 : pointerRef.current.x;
+    const pointerTargetY = reducedMotion || isTouchPrimary ? 0 : pointerRef.current.y;
+    smoothPointerRef.current.x = THREE.MathUtils.damp(
+      smoothPointerRef.current.x,
+      pointerTargetX,
+      10,
       delta,
     );
-    camera.position.y = THREE.MathUtils.damp(
-      camera.position.y,
-      sampledTargets.cameraPosition.y + pointerOffsetY * 0.65,
-      damping,
+    smoothPointerRef.current.y = THREE.MathUtils.damp(
+      smoothPointerRef.current.y,
+      pointerTargetY,
+      10,
       delta,
     );
-    camera.position.z = THREE.MathUtils.damp(
-      camera.position.z,
+
+    camera.position.set(
+      sampledTargets.cameraPosition.x + smoothPointerRef.current.x * 0.18,
+      sampledTargets.cameraPosition.y - smoothPointerRef.current.y * 0.12,
       sampledTargets.cameraPosition.z,
-      damping,
-      delta,
     );
+    camera.lookAt(sampledTargets.cameraTarget);
 
-    lookAtTargetRef.current.x = THREE.MathUtils.damp(
-      lookAtTargetRef.current.x,
-      sampledTargets.cameraTarget.x,
-      damping,
-      delta,
-    );
-    lookAtTargetRef.current.y = THREE.MathUtils.damp(
-      lookAtTargetRef.current.y,
-      sampledTargets.cameraTarget.y,
-      damping,
-      delta,
-    );
-    lookAtTargetRef.current.z = THREE.MathUtils.damp(
-      lookAtTargetRef.current.z,
-      sampledTargets.cameraTarget.z,
-      damping,
-      delta,
-    );
-    camera.lookAt(lookAtTargetRef.current);
-
-    if (monolithRef.current) {
-      const floatBob = reducedMotion ? 0 : Math.sin(state.clock.elapsedTime * 1.15) * 0.045;
-      const tiltX = reducedMotion || isTouchPrimary ? 0 : pointerRef.current.y * 0.15;
-      const tiltZ = reducedMotion || isTouchPrimary ? 0 : -pointerRef.current.x * 0.13;
-
-      monolithRef.current.position.x = THREE.MathUtils.damp(
-        monolithRef.current.position.x,
+    // 2. Apply authoritative stage transform directly to stageGroupRef
+    if (stageGroupRef.current) {
+      stageGroupRef.current.position.set(
         sampledTargets.monolithPosition.x,
-        damping,
-        delta,
-      );
-      monolithRef.current.position.y = THREE.MathUtils.damp(
-        monolithRef.current.position.y,
-        sampledTargets.monolithPosition.y + floatBob,
-        damping,
-        delta,
-      );
-      monolithRef.current.position.z = THREE.MathUtils.damp(
-        monolithRef.current.position.z,
+        sampledTargets.monolithPosition.y + entranceRef.current.yOffset,
         sampledTargets.monolithPosition.z,
-        damping,
-        delta,
       );
+      stageGroupRef.current.rotation.set(
+        sampledTargets.monolithRotation.x,
+        sampledTargets.monolithRotation.y + entranceRef.current.rotOffset,
+        sampledTargets.monolithRotation.z,
+      );
+      stageGroupRef.current.scale.setScalar(
+        sampledTargets.monolithScale * entranceRef.current.scaleMult,
+      );
+    }
 
-      monolithRef.current.rotation.x = THREE.MathUtils.damp(
-        monolithRef.current.rotation.x,
-        sampledTargets.monolithRotation.x + tiltX,
-        damping,
-        delta,
-      );
-      monolithRef.current.rotation.y = THREE.MathUtils.damp(
-        monolithRef.current.rotation.y,
-        sampledTargets.monolithRotation.y,
-        damping,
-        delta,
-      );
-      monolithRef.current.rotation.z = THREE.MathUtils.damp(
-        monolithRef.current.rotation.z,
-        sampledTargets.monolithRotation.z + tiltZ,
-        damping,
-        delta,
-      );
+    // 3. Apply interactive pointer tilt, user drag spin, and subtle breathing on isolated child group
+    if (interactionGroupRef.current) {
+      const floatY = reducedMotion ? 0 : Math.sin(state.clock.elapsedTime * 1.15) * 0.042;
+      const tiltX = smoothPointerRef.current.y * 0.14 + dragOffsetRef.current.pitch;
+      const tiltZ = -smoothPointerRef.current.x * 0.11;
+      const dragYaw = dragOffsetRef.current.yaw;
 
-      const nextScale = THREE.MathUtils.damp(
-        monolithRef.current.scale.x,
-        sampledTargets.monolithScale,
-        damping,
-        delta,
-      );
-      monolithRef.current.scale.setScalar(nextScale);
+      interactionGroupRef.current.position.y = floatY;
+      interactionGroupRef.current.rotation.set(tiltX, dragYaw, tiltZ);
     }
   });
 
   return (
-    <KineticMonolith
-      ref={monolithRef}
-      finish={finish}
-      quality={qualityTier}
-      reducedMotion={reducedMotion}
-      accentColorRef={accentColorRef}
-      scrollVelocityRef={scrollVelocityRef}
-    />
+    <group ref={stageGroupRef}>
+      <group ref={interactionGroupRef}>
+        <KineticMonolith
+          finish={finish}
+          quality={qualityTier}
+          reducedMotion={reducedMotion}
+          spinMultiplier={spinMultiplier}
+          accentColorRef={accentColorRef}
+          scrollVelocityRef={scrollVelocityRef}
+        />
+      </group>
+    </group>
   );
 }
